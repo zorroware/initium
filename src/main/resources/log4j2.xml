@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2021 Zorroware
+  ~
+  ~ Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
+  ~ software and associated documentation files (the "Software"), either in source
+  ~ code form or as a compiled binary, for any purpose, commercial or
+  ~ non-commercial, and by any means.
+  ~
+  ~ The copyright notices in the Software and this entire statement, including the
+  ~ above license grant, this restriction and the following disclaimer, must be
+  ~ included in all distributions of the Software, in whole or in part, and in any
+  ~ form.
+  ~
+  ~ THE SOFTWARE DISTRIBUTED UNDER THIS LICENSE IS DISTRIBUTED ON AN "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+  ~ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  ~ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+  ~ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  ~ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  -->
+
+<!-- Based on answers from the following StackOverflow post: https://stackoverflow.com/q/21206993 -->
+<Configuration status="INFO">
+    <Properties>
+        <!-- Directory for log files -->
+        <Property name="logPath">logs</Property>
+        <!-- Prefix used for log file names -->
+        <Property name="rollingFileName">initium</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Console output -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20.-20c{1}] - %highlight{%level} - %msg%n" />
+        </Console>
+
+        <!-- Log file output -->
+        <RollingFile name="rollingFile" immediateFlush="false" fileName="${logPath}/${rollingFileName}.log" filePattern="${logPath}/${rollingFileName}.%i.log.gz">
+            <PatternLayout pattern = "%d{HH:mm:ss.SSS} [%-20.-20c{1}] - %level - %msg%n" />
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100 KB" />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO" additivity="false">
+            <!-- Execute both outputs -->
+            <AppenderRef ref="console" />
+            <AppenderRef ref="rollingFile" />
+        </Root>
+    </Loggers>
+</Configuration>
