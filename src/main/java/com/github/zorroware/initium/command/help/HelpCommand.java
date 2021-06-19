@@ -25,7 +25,6 @@ package com.github.zorroware.initium.command.help;
 import com.github.zorroware.initium.Initium;
 import com.github.zorroware.initium.command.Command;
 import com.github.zorroware.initium.command.CommandGroup;
-import com.github.zorroware.initium.command.CommandMetadata;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,12 +38,12 @@ public class HelpCommand extends Command {
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
 
     @Override
-    public void execute(MessageReceivedEvent messageReceivedEvent, CommandMetadata metadata, String[] args, String name, CommandLine cmd, String[] filtered, String raw) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
         EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
-        if (filtered.length == 0) {
+        if (filteredArgs.length == 0) {
             embedBuilder.setTitle("Command Help");
-            embedBuilder.setDescription(String.format("To get information on a specific command, run `%s%s %s`", CONFIG.getPrefix(), name, getUsage()));
+            embedBuilder.setDescription(String.format("To get information on a specific command, run `%shelp %s`", CONFIG.getPrefix(), getUsage()));
 
             for (CommandGroup commandGroup : CommandGroup.values()) {
                 ArrayList<String> commandsList = new ArrayList<>();
@@ -61,7 +60,7 @@ public class HelpCommand extends Command {
 
             embedBuilder.setColor(0x4444ff);
         } else {
-            String commandName = filtered[0]; // Get the command name from the first argument
+            String commandName = filteredArgs[0]; // Get the command name from the first argument
 
             if (COMMANDS.containsKey(commandName)) {
                 Command command = COMMANDS.get(commandName);

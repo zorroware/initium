@@ -23,7 +23,6 @@
 package com.github.zorroware.initium.listeners;
 
 import com.github.zorroware.initium.Initium;
-import com.github.zorroware.initium.command.CommandMetadata;
 import com.github.zorroware.initium.command.CommandParser;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.util.EmbedUtil;
@@ -62,8 +61,6 @@ public class CommandListener implements EventListener {
         if (messageReceivedEvent.getChannelType().equals(ChannelType.PRIVATE)) return;
         if (messageReceivedEvent.getAuthor().isBot()) return;
 
-        long start = System.currentTimeMillis(); // Begin measuring processing time
-
         // Temporary semi-parsing
         String tmpName = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
         if (!COMMANDS.containsKey(tmpName) && !ALIASES.containsKey(tmpName)) return;
@@ -78,12 +75,11 @@ public class CommandListener implements EventListener {
         }
 
         // Assign references
-        String raw = commandData.getRaw();
         String name = commandData.getName();
         Command command = commandData.getCommand();
         String[] args = commandData.getArgs();
         CommandLine cmd = commandData.getCmd();
-        String[] filtered = commandData.getFiltered();
+        String[] filteredArgs = commandData.getFilteredArgs();
 
         EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
         EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
@@ -136,15 +132,10 @@ public class CommandListener implements EventListener {
             String tag = messageReceivedEvent.getAuthor().getAsTag();
             String flatArgs = Arrays.toString(args);
 
-            long end = System.currentTimeMillis();
-
-            CommandMetadata metadata = new CommandMetadata();
-            metadata.setProcessingTime(end - start); // Finish measuring processing time
-
             // Asynchronously run each command in its own thread.
             Thread thread = new Thread(() -> {
                 try {
-                    command.execute(messageReceivedEvent, metadata, args, name, cmd, filtered, raw); // Execution of command
+                    command.execute(messageReceivedEvent, args, cmd, filteredArgs);
                 } catch (Exception ex) {
                     LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, ex));
 

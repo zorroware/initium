@@ -23,7 +23,6 @@
 package com.github.zorroware.initium.command.moderation;
 
 import com.github.zorroware.initium.command.CommandGroup;
-import com.github.zorroware.initium.command.CommandMetadata;
 import com.github.zorroware.initium.util.EmbedUtil;
 import com.github.zorroware.initium.command.Command;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -36,7 +35,7 @@ import org.apache.commons.cli.Options;
 
 public class KickCommand extends Command {
     @Override
-    public void execute(MessageReceivedEvent messageReceivedEvent, CommandMetadata metadata, String[] args, String name, CommandLine cmd, String[] filtered, String raw) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
         if (messageReceivedEvent.getMessage().getMentionedUsers().isEmpty()) throw new IllegalArgumentException("No users mentioned");
         String reason = cmd.hasOption("r") ? String.join(" ", cmd.getOptionValues("r")) : "No reason specified.";
         Member target = messageReceivedEvent.getMessage().getMentionedMembers().get(0);

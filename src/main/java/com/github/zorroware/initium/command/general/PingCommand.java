@@ -23,7 +23,6 @@
 package com.github.zorroware.initium.command.general;
 
 import com.github.zorroware.initium.command.Command;
-import com.github.zorroware.initium.command.CommandMetadata;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -31,7 +30,7 @@ import org.apache.commons.cli.CommandLine;
 
 public class PingCommand extends Command {
     @Override
-    public void execute(MessageReceivedEvent messageReceivedEvent, CommandMetadata metadata, String[] args, String name, CommandLine cmd, String[] filtered, String raw) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
         long start = System.currentTimeMillis();
         messageReceivedEvent.getChannel().sendMessage(":ping_pong: Ping Test").queue(message -> {
             long end = System.currentTimeMillis();
@@ -40,7 +39,6 @@ public class PingCommand extends Command {
             EmbedBuilder pingEmbed = EmbedUtil.embedModel(messageReceivedEvent);
             pingEmbed.addField(":alarm_clock: API Latency", messageReceivedEvent.getJDA().getGatewayPing() + " ms", true);
             pingEmbed.addField(":robot: Client Latency", apiLatency + " ms", true);
-            pingEmbed.addField(":thought_balloon: Processing Time", metadata.getProcessingTime() + " ms", true);
 
             int color;
             if (apiLatency < 100) {

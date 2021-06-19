@@ -31,7 +31,7 @@ import org.apache.commons.cli.Options;
  * An abstract class representing a full command.
  */
 public abstract class Command {
-    public void execute(MessageReceivedEvent messageReceivedEvent, CommandMetadata metadata, String[] args, String name, CommandLine cmd, String[] filtered, String raw) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
     }
 
     public String getDescription() {

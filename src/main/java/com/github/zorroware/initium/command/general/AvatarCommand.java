@@ -22,7 +22,6 @@
 
 package com.github.zorroware.initium.command.general;
 
-import com.github.zorroware.initium.command.CommandMetadata;
 import com.github.zorroware.initium.util.EmbedUtil;
 import com.github.zorroware.initium.command.Command;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -38,7 +37,7 @@ public class AvatarCommand extends Command {
     private static final String SIZE_SUFFIX = "?size=1024"; // This will be appended to the direct URL of the avatar
 
     @Override
-    public void execute(MessageReceivedEvent messageReceivedEvent, CommandMetadata metadata, String[] args, String name, CommandLine cmd, String[] filtered, String raw) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
         List<User> mentionedUsers = messageReceivedEvent.getMessage().getMentionedUsers();
         User target;
 

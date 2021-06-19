@@ -52,23 +52,23 @@ public class CommandParser {
         private final Command command;
         private final String[] args;
         private final CommandLine cmd;
-        private final String[] filtered;
+        private final String[] filteredArgs;
 
         /**
-         * @param raw       raw message
-         * @param name      name of the command
-         * @param command   {@link Command} object
-         * @param args      any additional arguments passed to the command
-         * @param cmd       {@link CommandLine} object
-         * @param filtered  any arguments that are not flags
+         * @param raw           raw message
+         * @param name          name of the command
+         * @param command       {@link Command} object
+         * @param args          any additional arguments passed to the command
+         * @param cmd           {@link CommandLine} object
+         * @param filteredArgs  any arguments that are not flags
          */
-        public CommandData(String raw, String name, Command command, String[] args, CommandLine cmd, String[] filtered) {
+        public CommandData(String raw, String name, Command command, String[] args, CommandLine cmd, String[] filteredArgs) {
             this.raw = raw;
             this.name = name;
             this.command = command;
             this.args = args;
             this.cmd = cmd;
-            this.filtered = filtered;
+            this.filteredArgs = filteredArgs;
         }
     }
 
@@ -97,8 +97,8 @@ public class CommandParser {
         list.addAll(Arrays.asList(cmd.getArgs()));
 
         // Get the arguments passed that aren't part of the cli arguments
-        String[] filtered = Arrays.stream(list.toArray()).distinct().map(Object::toString).toArray(String[]::new);
+        String[] filteredArgs = Arrays.stream(list.toArray()).distinct().map(Object::toString).toArray(String[]::new);
 
-        return new CommandData(raw, name, command, args, cmd, filtered);
+        return new CommandData(raw, name, command, args, cmd, filteredArgs);
     }
 }
