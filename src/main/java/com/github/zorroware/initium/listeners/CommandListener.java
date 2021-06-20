@@ -48,7 +48,7 @@ public class CommandListener implements EventListener {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private static final ConfigSchema CONFIG = Initium.config;
-    private static final CommandParser DATA_PARSER = new CommandParser();
+    private static final CommandParser COMMAND_PARSER = new CommandParser();
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
     private static final Map<String, String> ALIASES = Initium.ALIASES;
 
@@ -67,7 +67,7 @@ public class CommandListener implements EventListener {
 
         CommandParser.CommandData commandData;
         try {
-            commandData = DATA_PARSER.parseData(messageReceivedEvent);
+            commandData = COMMAND_PARSER.parseData(messageReceivedEvent);
         } catch (ParseException pe) {
             EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Parsing Error", pe.getMessage());
             messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
