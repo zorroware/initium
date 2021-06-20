@@ -127,6 +127,7 @@ public class CommandListener implements EventListener {
             embedBuilder.setColor(0xff0000);
 
             messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+            return;
         }
 
         String tag = messageReceivedEvent.getAuthor().getAsTag();
