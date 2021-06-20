@@ -100,7 +100,6 @@ public class CommandListener implements EventListener {
                 boolean botHasPermission = botPermissions.contains(permission);
                 boolean userHasPermission = userPermissions.contains(permission);
 
-                // Integer-based permission system
                 int permissionMode = 0;
                 if (!botHasPermission) permissionMode += 1;
                 if (!userHasPermission) permissionMode += 2;
@@ -128,28 +127,28 @@ public class CommandListener implements EventListener {
             embedBuilder.setColor(0xff0000);
 
             messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-        } else {
-            String tag = messageReceivedEvent.getAuthor().getAsTag();
-            String flatArgs = Arrays.toString(args);
-
-            // Asynchronously run each command in its own thread.
-            Thread thread = new Thread(() -> {
-                try {
-                    command.execute(messageReceivedEvent, args, cmd, filteredArgs);
-                } catch (Exception ex) {
-                    LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, ex));
-
-                    // Dispatch error message
-                    EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", ex.getMessage());
-                    messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
-
-                    return;
-                }
-
-                LOGGER.info(String.format("%s executed '%s' with arguments '%s'", tag, name, flatArgs));
-            });
-
-            thread.start();
         }
+
+        String tag = messageReceivedEvent.getAuthor().getAsTag();
+        String flatArgs = Arrays.toString(args);
+
+        // Asynchronously run each command in its own thread.
+        Thread thread = new Thread(() -> {
+            try {
+                command.execute(messageReceivedEvent, args, cmd, filteredArgs);
+            } catch (Exception ex) {
+                LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, ex));
+
+                // Dispatch error message
+                EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", ex.getMessage());
+                messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
+
+                return;
+            }
+
+            LOGGER.info(String.format("%s executed '%s' with arguments '%s'", tag, name, flatArgs));
+        });
+
+        thread.start();
     }
 }
