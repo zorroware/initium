@@ -91,10 +91,10 @@ public class CommandListener implements EventListener {
         boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
 
         if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
-            EmbedBuilder missingPermissionsError = EmbedUtil.embedModel(messageReceivedEvent);
+            EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
-            missingPermissionsError.setTitle("Missing Permissions");
-            missingPermissionsError.setDescription("The following permissions are needed to run this command:");
+            embedBuilder.setTitle("Missing Permissions");
+            embedBuilder.setDescription("The following permissions are needed to run this command:");
 
             for (Permission permission : commandPermissions) {
                 boolean botHasPermission = botPermissions.contains(permission);
@@ -111,10 +111,10 @@ public class CommandListener implements EventListener {
                     default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
                 };
 
-                missingPermissionsError.addField(permission.getName(), "Who: " + permissionIndicator, true);
+                embedBuilder.addField(permission.getName(), "Who: " + permissionIndicator, true);
             }
 
-            messageReceivedEvent.getChannel().sendMessageEmbeds(missingPermissionsError.build()).queue();
+            messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
             return;
         }
 
