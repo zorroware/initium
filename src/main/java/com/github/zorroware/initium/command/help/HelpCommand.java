@@ -60,32 +60,32 @@ public class HelpCommand extends Command {
 
             embedBuilder.setColor(0x4444ff);
         } else {
-            String commandName = filteredArgs[0]; // Get the command name from the first argument
+            String commandName = filteredArgs[0];
 
             if (COMMANDS.containsKey(commandName)) {
                 Command command = COMMANDS.get(commandName);
 
                 embedBuilder.setTitle("Command Info • " + commandName);
-                embedBuilder.addField("Description", command.getDescription() == null ? "No description provided." : command.getDescription(), false);
+                embedBuilder.setDescription(command.getDescription() == null ? "No description provided." : command.getDescription());
 
-                StringBuilder usage = new StringBuilder();
-                usage.append(CONFIG.getPrefix()); // Prefix
-                usage.append(commandName); // Name
-                if (command.getUsage() != null) usage.append(' ').append(command.getUsage()); // Arguments
+                // Usage field
+                StringBuilder usageStringBuilder = new StringBuilder();
+                usageStringBuilder.append(CONFIG.getPrefix());
+                usageStringBuilder.append(commandName);
+                if (command.getUsage() != null) usageStringBuilder.append(' ').append(command.getUsage());
+                embedBuilder.addField("Usage", usageStringBuilder.toString(), false);
 
-                embedBuilder.addField("Usage", usage.toString(), false);
-
-                StringBuilder aliases = new StringBuilder();
-
+                // Aliases field
+                StringBuilder aliasesStringBuilder = new StringBuilder();
                 Iterator<String> iterator = Arrays.stream(command.getAliases()).iterator();
                 while (iterator.hasNext()) {
-                    aliases.append('`').append(iterator.next()).append('`');
+                    aliasesStringBuilder.append('`').append(iterator.next()).append('`');
                     if (iterator.hasNext()) {
-                        aliases.append(", ");
+                        aliasesStringBuilder.append(", ");
                     }
                 }
+                embedBuilder.addField("Aliases", aliasesStringBuilder.toString(), false);
 
-                embedBuilder.addField("Aliases", aliases.toString(), false);
                 embedBuilder.setColor(0x00ccdd);
             } else {
                 throw new IllegalArgumentException("Unknown command");
