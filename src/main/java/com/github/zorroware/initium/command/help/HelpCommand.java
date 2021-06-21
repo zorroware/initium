@@ -46,7 +46,7 @@ public class HelpCommand extends Command {
             embedBuilder.setDescription(String.format("To get information on a specific command, run `%shelp %s`", CONFIG.getPrefix(), getUsage()));
 
             for (CommandGroup commandGroup : CommandGroup.values()) {
-                ArrayList<String> commandsList = new ArrayList<>();
+                List<String> commandsList = new ArrayList<>();
 
                 COMMANDS.forEach((name, command) -> {
                     if (command.getCommandGroup() == commandGroup && !command.isHidden()) {
