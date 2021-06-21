@@ -20,6 +20,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id("application")
     id("java")
@@ -60,7 +62,7 @@ java {
 }
 
 tasks {
-    withType<AbstractArchiveTask> {
+    withType<AbstractArchiveTask>().configureEach {
         from("LICENSE") // Include license within every jar
 
         // Reproducible builds
@@ -68,11 +70,15 @@ tasks {
         isReproducibleFileOrder = true
     }
 
-    withType<JavaCompile> {
+    withType<Jar>().configureEach {
+        manifest.attributes["Multi-Release"] = true
+    }
+
+    withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
     }
 
-    shadowJar {
+    withType<ShadowJar>().configureEach {
         minimize {
             exclude(dependency("org.apache.logging.log4j:.*:.*")) // Log4J is broken by minimization due to its heavy usage of reflection
         }
