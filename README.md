@@ -41,7 +41,7 @@ If you have the technical knowledge to add these missing features, please feel f
 ____
 
 ## User Guide
-This section assumes you're using [IntelliJ Idea](https://www.jetbrains.com/idea), and are familiar with Java and JVM configuration.
+This section assumes you're using [IntelliJ IDEA](https://www.jetbrains.com/idea), and are familiar with Java and JVM configuration.
 
 ### JDK
 If you don't have Java 16 already, download the corresponding JDK. Use the free [AdoptOpenJDK](https://adoptopenjdk.net/?variant=openjdk16&jvmVariant=hotspot) binaries.
@@ -49,6 +49,10 @@ If you don't have Java 16 already, download the corresponding JDK. Use the free 
 ### Building
 `./gradlew shadowJar` on UNIX-like systems (e.g. Linux, macOS, *BSD)<br>
 `gradlew.bat shadowJar` on Windows
+
+### Refactoring
+Chances are, you don't want to keep our package name. A good IDE will have refactoring support.
+Refactor the package name, and update the `mainClass` field in [the build script](build.gradle.kts)
 
 ### Configuring
 When running your Initium-based bot, it checks for a file named "config.toml" in the current working directory. Copy the TOML below and put it into a new file with that name.
