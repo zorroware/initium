@@ -22,6 +22,7 @@
 
 package com.github.zorroware.initium.listeners;
 
+import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -30,6 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 /**
  * Displays bot information on startup.
@@ -37,23 +41,31 @@ import javax.annotation.Nonnull;
 public class ReadyListener implements EventListener {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
+    @SneakyThrows
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (!(event instanceof ReadyEvent readyEvent)) return;
-
-        String textBorder = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
-
-        LOGGER.info(textBorder);
-        LOGGER.info("Bot Information");
-        LOGGER.info(textBorder);
-        LOGGER.info("Bot Account: " + readyEvent.getJDA().getSelfUser().getName());
-        LOGGER.info("JDA Version: " + JDAInfo.VERSION);
-        LOGGER.info("Java Runtime: " + Runtime.version().toString());
-        LOGGER.info("Maximum Heap Size: " + (Runtime.getRuntime().maxMemory() / 1048576) + " MiB");
-        LOGGER.info(textBorder);
-        LOGGER.info("Guild Count: " + readyEvent.getJDA().getGuilds().size());
-        LOGGER.info(textBorder);
-
         readyEvent.getJDA().removeEventListener(this); // ReadyEvent only fires once
+
+        // Parse current release build from Maven metadata
+        String availableVersion = new Scanner(new URL("https://m2.dv8tion.net/releases/net/dv8tion/JDA/maven-metadata.xml").openStream(),StandardCharsets.UTF_8)
+                .useDelimiter("\\A")
+                .next()
+                .split("<release>")[1]
+                .split("</release>")[0];
+
+        String currentVersion = JDAInfo.VERSION;
+
+        int availableBuild = Integer.parseInt(availableVersion.split("_")[1]);
+        int currentBuild = Integer.parseInt(JDAInfo.VERSION_BUILD);
+
+        if (availableBuild > currentBuild) {
+            String message = String.format("Current: %s, Latest: %s", currentVersion, availableVersion);
+            if (availableBuild - currentBuild < 15) {
+                LOGGER.info("There's a new build of JDA available! " + message);
+            } else {
+                LOGGER.warn("You're running an old version of JDA! " + message);
+            }
+        }
     }
 }
