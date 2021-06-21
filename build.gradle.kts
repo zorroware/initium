@@ -70,15 +70,15 @@ tasks {
         isReproducibleFileOrder = true
     }
 
-    withType<Jar>().configureEach {
-        manifest.attributes["Multi-Release"] = true
-    }
-
     withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
     }
 
-    withType<ShadowJar>().configureEach {
+    jar {
+        manifest.attributes["Multi-Release"] = true
+    }
+
+    shadowJar {
         minimize {
             exclude(dependency("org.apache.logging.log4j:.*:.*")) // Log4J is broken by minimization due to its heavy usage of reflection
         }
