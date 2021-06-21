@@ -48,12 +48,11 @@ public class HelpCommand extends Command {
             for (CommandGroup commandGroup : CommandGroup.values()) {
                 ArrayList<String> commandsList = new ArrayList<>();
 
-                for (Map.Entry<String, Command> entry : COMMANDS.entrySet()) {
-                    Command command = entry.getValue();
+                COMMANDS.forEach((name, command) -> {
                     if (command.getCommandGroup() == commandGroup && !command.isHidden()) {
-                        commandsList.add(entry.getKey());
+                        commandsList.add(name);
                     }
-                }
+                });
 
                 embedBuilder.addField(commandGroup.toString() + " Commands", String.join(" • ", commandsList), false);
             }
