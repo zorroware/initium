@@ -40,6 +40,7 @@ public class CommandParser {
     private static final ConfigSchema CONFIG = Initium.config;
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
     private static final Map<String, String> ALIASES = Initium.ALIASES;
+    private static final DefaultParser DEFAULT_PARSER = new DefaultParser();
 
     /**
      * A class containing various data for commands.
@@ -92,12 +93,8 @@ public class CommandParser {
         }
 
         String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
-        CommandLine cmd = new DefaultParser().parse(command.getOptions(new Options()), args);
-        ArrayList<String> list = new ArrayList<>(Arrays.asList(args));
-        list.addAll(Arrays.asList(cmd.getArgs()));
-
-        // Get the arguments passed that aren't part of the cli arguments
-        String[] filteredArgs = Arrays.stream(list.toArray()).distinct().map(Object::toString).toArray(String[]::new);
+        CommandLine cmd = DEFAULT_PARSER.parse(command.getOptions(new Options()), args);
+        String[] filteredArgs = Arrays.stream(cmd.getArgs()).distinct().map(Object::toString).toArray(String[]::new);
 
         return new CommandData(raw, name, command, args, cmd, filteredArgs);
     }
