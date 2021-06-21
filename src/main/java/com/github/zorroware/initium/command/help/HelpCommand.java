@@ -48,10 +48,10 @@ public class HelpCommand extends Command {
             for (CommandGroup commandGroup : CommandGroup.values()) {
                 ArrayList<String> commandsList = new ArrayList<>();
 
-                for (HashMap.Entry<String, Command> stringCommandEntry : COMMANDS.entrySet()) {
-                    Command command = stringCommandEntry.getValue();
+                for (Map.Entry<String, Command> entry : COMMANDS.entrySet()) {
+                    Command command = entry.getValue();
                     if (command.getCommandGroup() == commandGroup && !command.isHidden()) {
-                        commandsList.add(stringCommandEntry.getKey());
+                        commandsList.add(entry.getKey());
                     }
                 }
 
