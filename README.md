@@ -15,7 +15,6 @@ Many developers dislike developing for the latest Java, so we'd like to make thi
 ## What's inside?
 * A simple and performant command parser
   * Command aliases
-  * Flag arguments aided by [commons-cli](https://commons.apache.org/proper/commons-cli)
   * Static permission requirements
 * Asynchronous commands
   * Every command runs in its own thread

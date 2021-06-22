@@ -23,18 +23,16 @@
 package com.github.zorroware.initium.listeners;
 
 import com.github.zorroware.initium.Initium;
+import com.github.zorroware.initium.command.Command;
 import com.github.zorroware.initium.command.CommandParser;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.util.EmbedUtil;
-import com.github.zorroware.initium.command.Command;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,21 +63,12 @@ public class CommandListener implements EventListener {
         String tmpName = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
         if (!COMMANDS.containsKey(tmpName) && !ALIASES.containsKey(tmpName)) return;
 
-        CommandParser.CommandData commandData;
-        try {
-            commandData = COMMAND_PARSER.parseData(messageReceivedEvent);
-        } catch (ParseException pe) {
-            EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Parsing Error", pe.getMessage());
-            messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
-            return;
-        }
+        CommandParser.CommandData commandData = COMMAND_PARSER.parseData(messageReceivedEvent);
 
         // Assign references
         String name = commandData.getName();
         Command command = commandData.getCommand();
         String[] args = commandData.getArgs();
-        CommandLine cmd = commandData.getCmd();
-        String[] filteredArgs = commandData.getFilteredArgs();
 
         EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
         EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
@@ -136,7 +125,7 @@ public class CommandListener implements EventListener {
         // Asynchronously run each command in its own thread.
         Thread thread = new Thread(() -> {
             try {
-                command.execute(messageReceivedEvent, args, cmd, filteredArgs);
+                command.execute(messageReceivedEvent, args);
             } catch (Exception ex) {
                 LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, ex));
 

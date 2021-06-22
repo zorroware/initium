@@ -24,14 +24,12 @@ package com.github.zorroware.initium.command;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Options;
 
 /**
  * An abstract class representing a full command.
  */
 public abstract class Command {
-    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
     }
 
     public String getDescription() {
@@ -56,10 +54,6 @@ public abstract class Command {
 
     public boolean isNSFW() {
         return false;
-    }
-
-    public Options getOptions(Options options) {
-        return options;
     }
 
     public Permission[] getPermissions() {

@@ -22,23 +22,23 @@
 
 package com.github.zorroware.initium.command.moderation;
 
+import com.github.zorroware.initium.command.Command;
 import com.github.zorroware.initium.command.CommandGroup;
 import com.github.zorroware.initium.util.EmbedUtil;
-import com.github.zorroware.initium.command.Command;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+
+import java.util.Arrays;
 
 public class KickCommand extends Command {
     @Override
-    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         if (messageReceivedEvent.getMessage().getMentionedUsers().isEmpty()) throw new IllegalArgumentException("No users mentioned");
-        String reason = cmd.hasOption("r") ? String.join(" ", cmd.getOptionValues("r")) : "No reason specified.";
+
         Member target = messageReceivedEvent.getMessage().getMentionedMembers().get(0);
+        String reason = args.length <= 1 ? "No reason provided." : String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
         messageReceivedEvent.getGuild().kick(target, reason).queue();
 
@@ -52,28 +52,17 @@ public class KickCommand extends Command {
 
     @Override
     public String getDescription() {
-        return "Kick a user from the current guild.";
+        return "Kick a user from the guild.";
     }
 
     @Override
     public String getUsage() {
-        return "<user> [-r/--reason <reason>]";
+        return "<user> [<reason>]";
     }
 
     @Override
     public CommandGroup getCommandGroup() {
         return CommandGroup.MODERATION;
-    }
-
-    @Override
-    public Options getOptions(Options options) {
-        Option option = Option.builder("r")
-                .longOpt("reason")
-                .hasArgs()
-                .build();
-        options.addOption(option);
-
-        return options;
     }
 
     @Override

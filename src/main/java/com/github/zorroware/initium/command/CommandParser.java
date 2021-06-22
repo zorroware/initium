@@ -22,16 +22,13 @@
 
 package com.github.zorroware.initium.command;
 
-import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.Initium;
+import com.github.zorroware.initium.config.ConfigSchema;
 import lombok.Getter;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * A parser for commands.
@@ -40,7 +37,6 @@ public class CommandParser {
     private static final ConfigSchema CONFIG = Initium.config;
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
     private static final Map<String, String> ALIASES = Initium.ALIASES;
-    private static final DefaultParser DEFAULT_PARSER = new DefaultParser();
 
     /**
      * A class containing various data for commands.
@@ -48,28 +44,19 @@ public class CommandParser {
     @Getter
     @SuppressWarnings("ClassCanBeRecord")
     public static class CommandData {
-        private final String raw;
         private final String name;
         private final Command command;
         private final String[] args;
-        private final CommandLine cmd;
-        private final String[] filteredArgs;
 
         /**
-         * @param raw           raw message
          * @param name          name of the command
          * @param command       {@link Command} object
          * @param args          any additional arguments passed to the command
-         * @param cmd           {@link CommandLine} object
-         * @param filteredArgs  any arguments that are not flags
          */
-        public CommandData(String raw, String name, Command command, String[] args, CommandLine cmd, String[] filteredArgs) {
-            this.raw = raw;
+        public CommandData(String name, Command command, String[] args) {
             this.name = name;
             this.command = command;
             this.args = args;
-            this.cmd = cmd;
-            this.filteredArgs = filteredArgs;
         }
     }
 
@@ -78,7 +65,7 @@ public class CommandParser {
      * @param messageReceivedEvent {@link MessageReceivedEvent} instance
      * @return {@link CommandData} instance
      */
-    public CommandData parseData(MessageReceivedEvent messageReceivedEvent) throws ParseException {
+    public CommandData parseData(MessageReceivedEvent messageReceivedEvent) {
         String raw = messageReceivedEvent.getMessage().getContentRaw();
         String[] formatted = raw.substring(CONFIG.getPrefix().length()).split(" ");
         String name = formatted[0];
@@ -93,9 +80,7 @@ public class CommandParser {
         }
 
         String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
-        CommandLine cmd = DEFAULT_PARSER.parse(command.getOptions(new Options()), args);
-        String[] filteredArgs = Arrays.stream(cmd.getArgs()).distinct().map(Object::toString).toArray(String[]::new);
 
-        return new CommandData(raw, name, command, args, cmd, filteredArgs);
+        return new CommandData(name, command, args);
     }
 }

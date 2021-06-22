@@ -41,7 +41,6 @@ dependencies {
 
     // General Libraries
     implementation(group = "com.google.guava",         name = "guava",              version = "30.1.1-jre")
-    implementation(group = "commons-cli",              name = "commons-cli",        version = "1.4")
     implementation(group = "commons-io",               name = "commons-io",         version = "2.10.0")
     implementation(group = "org.tomlj",                name = "tomlj",              version = "1.0.0")
 

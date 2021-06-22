@@ -29,7 +29,6 @@ import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.apache.commons.cli.CommandLine;
 
 import java.util.*;
 
@@ -38,10 +37,10 @@ public class HelpCommand extends Command {
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
 
     @Override
-    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args, CommandLine cmd, String[] filteredArgs) {
+    public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
-        if (filteredArgs.length == 0) {
+        if (args.length == 0) {
             embedBuilder.setTitle("Command Help");
             embedBuilder.setDescription(String.format("To get information on a specific command, run `%shelp %s`", CONFIG.getPrefix(), getUsage()));
 
@@ -59,7 +58,7 @@ public class HelpCommand extends Command {
 
             embedBuilder.setColor(0x4444ff);
         } else {
-            String commandName = filteredArgs[0];
+            String commandName = args[0];
 
             if (COMMANDS.containsKey(commandName)) {
                 Command command = COMMANDS.get(commandName);
