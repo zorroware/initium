@@ -53,7 +53,7 @@ public class CommandListener implements EventListener {
     private static final ConfigSchema CONFIG = Initium.config;
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
     private static final Map<String, String> ALIASES = Initium.ALIASES;
-    private static final Map<User, ExecutorService> USER_THREADS = new HashMap<>();
+    private static final Map<Long, ExecutorService> USER_THREADS = new HashMap<>();
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
@@ -128,8 +128,8 @@ public class CommandListener implements EventListener {
         String flatArgs = Arrays.toString(args);
 
         // Manage ExecutorService for individual user
-        User commandUser = messageReceivedEvent.getAuthor();
-        ExecutorService executorService = USER_THREADS.computeIfAbsent(commandUser, k -> Executors.newFixedThreadPool(1));
+        long commandUserId = messageReceivedEvent.getAuthor().getIdLong();
+        ExecutorService executorService = USER_THREADS.computeIfAbsent(commandUserId, k -> Executors.newFixedThreadPool(1));
 
         executorService.submit(() -> {
             try {
@@ -147,7 +147,7 @@ public class CommandListener implements EventListener {
 
             // Terminate the executor if it has no commands queued
             if (((ThreadPoolExecutor) executorService).getQueue().size() == 0) {
-                USER_THREADS.remove(commandUser);
+                USER_THREADS.remove(commandUserId);
                 executorService.shutdown();
             }
         });
