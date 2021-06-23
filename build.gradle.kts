@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     // JDA
-    implementation(group = "net.dv8tion",              name = "JDA",                version = "4.3.0_280") { exclude(module = "opus-java") }
+    implementation(group = "net.dv8tion",              name = "JDA",                version = "4.3.0_282") { exclude(module = "opus-java") }
 
     // General Libraries
     implementation(group = "com.google.guava",         name = "guava",              version = "30.1.1-jre")
@@ -48,7 +48,7 @@ dependencies {
     implementation(group = "org.apache.logging.log4j", name = "log4j-api",          version = "2.14.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-core",         version = "2.14.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j18-impl", version = "2.14.1")
-    implementation(group = "org.slf4j",                name = "slf4j-api",          version = "1.7.30")
+    implementation(group = "org.slf4j",                name = "slf4j-api",          version = "1.7.31")
 }
 
 application {
