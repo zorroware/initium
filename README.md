@@ -18,6 +18,7 @@ Many developers dislike developing for the latest Java, so we'd like to make thi
   * Static permission requirements
 * Asynchronous commands
   * Every command runs in its own thread
+  * One thread per user limit
 * Bleeding-edge software
   * The latest JDA, Gradle, and Java
 * Clean build.gradle
