@@ -22,12 +22,14 @@
 
 package com.github.zorroware.initium.config;
 
+import lombok.SneakyThrows;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * Assembles an instance of {@link ConfigSchema} from a configuration file.
@@ -52,6 +54,8 @@ public class ConfigLoader {
         configSchema.setName(tomlParseResult.getString("name"));
         configSchema.setPrefix(tomlParseResult.getString("prefix"));
         configSchema.setToken(tomlParseResult.getString("token"));
+
+        configSchema.setParsingThreads(Math.toIntExact(Objects.requireNonNull(tomlParseResult.getLong("parsing_threads"))));
 
         return configSchema;
     }

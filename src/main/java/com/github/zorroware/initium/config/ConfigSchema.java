@@ -33,4 +33,6 @@ public class ConfigSchema {
     private String name;
     private String prefix;
     private String token;
+
+    private int parsingThreads;
 }

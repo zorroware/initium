@@ -52,103 +52,111 @@ public class CommandListener implements EventListener {
     private static final ConfigSchema CONFIG = Initium.config;
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
     private static final Map<String, String> ALIASES = Initium.ALIASES;
+
+    private static final ExecutorService THREAD_POOL = Executors.newFixedThreadPool(
+            CONFIG.getParsingThreads() == 0 ? Runtime.getRuntime().availableProcessors() : CONFIG.getParsingThreads());
     private static final Map<User, ExecutorService> USER_THREADS = new HashMap<>();
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (!(event instanceof MessageReceivedEvent messageReceivedEvent)) return;
 
-        // These checks go first because they're most likely to be true, saving processing power
+        // These checks go first because they're most likely to fail, saving processing power
+        // These aren't multithreaded due to the overhead of submitting a task to the thread pool
         if (!messageReceivedEvent.getMessage().getContentRaw().startsWith(CONFIG.getPrefix())) return;
         if (messageReceivedEvent.getChannelType().equals(ChannelType.PRIVATE)) return;
         if (messageReceivedEvent.getAuthor().isBot()) return;
 
-        // Temporary semi-parsing
-        String tmpName = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
-        if (!COMMANDS.containsKey(tmpName) && !ALIASES.containsKey(tmpName)) return;
+        // Submit to thread pool for command processing
+        THREAD_POOL.submit(() -> {
+            // Temporary semi-parsing
+            String tmpName = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
+            if (!COMMANDS.containsKey(tmpName) && !ALIASES.containsKey(tmpName)) return;
 
-        CommandParser.CommandData commandData = CommandParser.parseData(messageReceivedEvent);
+            CommandParser.CommandData commandData = CommandParser.parseData(messageReceivedEvent);
 
-        // Assign references
-        String name = commandData.getName();
-        Command command = commandData.getCommand();
-        String[] args = commandData.getArgs();
+            // Assign references
+            String name = commandData.getName();
+            Command command = commandData.getCommand();
+            String[] args = commandData.getArgs();
 
-        EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
-        EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
-        Permission[] commandPermissions = command.getPermissions();
+            EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
+            EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
+            Permission[] commandPermissions = command.getPermissions();
 
-        List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
+            List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
 
-        boolean botHasRequiredPermissions = botPermissions.containsAll(commandPermissionsList);
-        boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
+            boolean botHasRequiredPermissions = botPermissions.containsAll(commandPermissionsList);
+            boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
 
-        if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
-            EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
+            if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
+                EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
-            embedBuilder.setTitle("Missing Permissions");
-            embedBuilder.setDescription("The following permissions are needed to run this command:");
+                embedBuilder.setTitle("Missing Permissions");
+                embedBuilder.setDescription("The following permissions are needed to run this command:");
 
-            for (Permission permission : commandPermissions) {
-                boolean botHasPermission = botPermissions.contains(permission);
-                boolean userHasPermission = userPermissions.contains(permission);
+                for (Permission permission : commandPermissions) {
+                    boolean botHasPermission = botPermissions.contains(permission);
+                    boolean userHasPermission = userPermissions.contains(permission);
 
-                int permissionMode = 0;
-                if (!botHasPermission) permissionMode += 1;
-                if (!userHasPermission) permissionMode += 2;
+                    int permissionMode = 0;
+                    if (!botHasPermission) permissionMode += 1;
+                    if (!userHasPermission) permissionMode += 2;
 
-                String permissionIndicator = switch (permissionMode) {
-                    case 1 -> "Bot";
-                    case 2 -> "User";
-                    case 3 -> "Bot & User";
-                    default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
-                };
+                    String permissionIndicator = switch (permissionMode) {
+                        case 1 -> "Bot";
+                        case 2 -> "User";
+                        case 3 -> "Bot & User";
+                        default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
+                    };
 
-                embedBuilder.addField(permission.getName(), "Who: " + permissionIndicator, true);
-            }
+                    embedBuilder.addField(permission.getName(), "Who: " + permissionIndicator, true);
+                }
 
-            messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-            return;
-        }
-
-        if (command.isNSFW() && !messageReceivedEvent.getTextChannel().isNSFW()) { // if (the command being run is NSFW but the channel isn't)
-            EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
-
-            embedBuilder.setTitle("NSFW Channel Required");
-            embedBuilder.setDescription("This command must be ran in an NSFW channel.");
-            embedBuilder.setImage("https://support.discord.com/hc/article_attachments/360007795191/2_.jpg"); // Image from Discord's guide on NSFW channels
-            embedBuilder.setColor(0xff0000);
-
-            messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-            return;
-        }
-
-        String tag = messageReceivedEvent.getAuthor().getAsTag();
-        String flatArgs = Arrays.toString(args);
-
-        // Manage ExecutorService for individual user
-        User commandUser = messageReceivedEvent.getAuthor();
-        ExecutorService executorService = USER_THREADS.computeIfAbsent(commandUser, k -> Executors.newFixedThreadPool(1));
-
-        executorService.submit(() -> {
-            try {
-                command.execute(messageReceivedEvent, args);
-            } catch (Exception ex) {
-                LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, ex));
-
-                // Dispatch error message
-                EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", ex.getMessage());
-                messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
+                messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
                 return;
             }
 
-            LOGGER.info(String.format("%s executed '%s' with arguments '%s'", tag, name, flatArgs));
+            if (command.isNSFW() && !messageReceivedEvent.getTextChannel().isNSFW()) { // if (the command being run is NSFW but the channel isn't)
+                EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
-            // Terminate the executor if it has no commands queued
-            if (((ThreadPoolExecutor) executorService).getQueue().size() == 0) {
-                USER_THREADS.remove(commandUser);
-                executorService.shutdown();
+                embedBuilder.setTitle("NSFW Channel Required");
+                embedBuilder.setDescription("This command must be ran in an NSFW channel.");
+                embedBuilder.setImage("https://support.discord.com/hc/article_attachments/360007795191/2_.jpg"); // Image from Discord's guide on NSFW channels
+                embedBuilder.setColor(0xff0000);
+
+                messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                return;
             }
+
+            String tag = messageReceivedEvent.getAuthor().getAsTag();
+            String flatArgs = Arrays.toString(args);
+
+            // Manage ExecutorService for individual user
+            User commandUser = messageReceivedEvent.getAuthor();
+            ExecutorService executorService = USER_THREADS.computeIfAbsent(commandUser, k -> Executors.newFixedThreadPool(1));
+
+            // Submit execution to user's thread
+            executorService.submit(() -> {
+                try {
+                    command.execute(messageReceivedEvent, args);
+                } catch (Exception ex) {
+                    LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, ex));
+
+                    // Dispatch error message
+                    EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", ex.getMessage());
+                    messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
+                    return;
+                }
+
+                LOGGER.info(String.format("%s executed '%s' with arguments '%s'", tag, name, flatArgs));
+
+                // Terminate the executor if it has no commands queued
+                if (((ThreadPoolExecutor) executorService).getQueue().size() == 0) {
+                    USER_THREADS.remove(commandUser);
+                    executorService.shutdown();
+                }
+            });
         });
     }
 }
