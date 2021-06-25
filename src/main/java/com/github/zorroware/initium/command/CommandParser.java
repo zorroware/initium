@@ -65,7 +65,7 @@ public class CommandParser {
      * @param messageReceivedEvent {@link MessageReceivedEvent} instance
      * @return {@link CommandData} instance
      */
-    public CommandData parseData(MessageReceivedEvent messageReceivedEvent) {
+    public static CommandData parseData(MessageReceivedEvent messageReceivedEvent) {
         String raw = messageReceivedEvent.getMessage().getContentRaw();
         String[] formatted = raw.substring(CONFIG.getPrefix().length()).split(" ");
         String name = formatted[0];

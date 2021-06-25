@@ -49,7 +49,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class CommandListener implements EventListener {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private static final CommandParser COMMAND_PARSER = new CommandParser();
     private static final ConfigSchema CONFIG = Initium.config;
     private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
     private static final Map<String, String> ALIASES = Initium.ALIASES;
@@ -68,7 +67,7 @@ public class CommandListener implements EventListener {
         String tmpName = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
         if (!COMMANDS.containsKey(tmpName) && !ALIASES.containsKey(tmpName)) return;
 
-        CommandParser.CommandData commandData = COMMAND_PARSER.parseData(messageReceivedEvent);
+        CommandParser.CommandData commandData = CommandParser.parseData(messageReceivedEvent);
 
         // Assign references
         String name = commandData.getName();
