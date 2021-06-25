@@ -38,9 +38,11 @@
 
         <!-- Log file output -->
         <RollingFile name="rollingFile" immediateFlush="false" fileName="${logPath}/${rollingFileName}.log" filePattern="${logPath}/${rollingFileName}.%i.log.gz">
-            <PatternLayout pattern = "%d{HH:mm:ss.SSS} [%-20.-20c{1}] - %level - %msg%n" />
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-20.-20c{1}] - %level - %msg%n" />
             <Policies>
+		<!-- Create a new log file when starting up -->
                 <OnStartupTriggeringPolicy />
+		<!-- Create a new log file when it reaches a set size -->
                 <SizeBasedTriggeringPolicy size="100 KB" />
             </Policies>
         </RollingFile>
