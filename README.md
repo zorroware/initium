@@ -17,8 +17,7 @@ Many developers dislike developing for the latest Java, so we'd like to make thi
   * Command aliases
   * Static permission requirements
 * Asynchronous commands
-  * Every command runs in its own thread
-  * One thread per user limit
+  * Fast and safe multithreading
 * Bleeding-edge software
   * The latest JDA, Gradle, and Java
 * Clean build.gradle
@@ -60,10 +59,6 @@ When running your Initium-based bot, it checks for a file named "config.toml" in
 name = "Initium"
 prefix = "%"
 token = "TOKEN"
-
-# The amount of threads to use for command parsing
-# When set to zero, it will use all of the host's threads
-parsing_threads = 0
 ```
 
 ### Running

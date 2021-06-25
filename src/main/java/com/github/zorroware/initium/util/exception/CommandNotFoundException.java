@@ -20,38 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.github.zorroware.initium.config;
+package com.github.zorroware.initium.util.exception;
 
-import org.tomlj.Toml;
-import org.tomlj.TomlParseResult;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-/**
- * Assembles an instance of {@link ConfigSchema} from a configuration file.
- */
-public class ConfigLoader {
-    private final Path CONFIG_PATH;
-
-    /**
-     * @param filename path of config file
-     */
-    public ConfigLoader(String filename) {
-        this.CONFIG_PATH = Paths.get(filename);
-    }
-
-    /**
-     * @return assembled {@link ConfigSchema} object from the contents of the config file
-     */
-    public ConfigSchema load() throws IOException {
-        TomlParseResult tomlParseResult = Toml.parse(CONFIG_PATH);
-
-        ConfigSchema configSchema = new ConfigSchema();
-        configSchema.setName(tomlParseResult.getString("name"));
-        configSchema.setPrefix(tomlParseResult.getString("prefix"));
-        configSchema.setToken(tomlParseResult.getString("token"));
-        return configSchema;
-    }
+public class CommandNotFoundException extends Exception {
 }

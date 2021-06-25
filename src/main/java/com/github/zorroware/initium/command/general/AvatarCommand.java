@@ -39,9 +39,9 @@ public class AvatarCommand extends Command {
         String sizeSuffix = "?size=1024";
         User target;
 
-        if (args.length == 0) { // if (no args provided)
+        if (args.length == 0) {
             target = messageReceivedEvent.getAuthor();
-        } else if (mentionedUsers.size() != 0) { // else if (message has a valid user mention)
+        } else if (mentionedUsers.size() != 0) {
             target = mentionedUsers.get(0);
         } else {
             throw new IllegalArgumentException("No user was mentioned");

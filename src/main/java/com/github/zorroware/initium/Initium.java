@@ -24,14 +24,14 @@ package com.github.zorroware.initium;
 
 import com.github.zorroware.initium.command.Command;
 import com.github.zorroware.initium.command.general.AvatarCommand;
+import com.github.zorroware.initium.command.general.PingCommand;
+import com.github.zorroware.initium.command.help.HelpCommand;
 import com.github.zorroware.initium.command.moderation.KickCommand;
 import com.github.zorroware.initium.config.ConfigLoader;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.listeners.CommandListener;
 import com.github.zorroware.initium.listeners.ReadyListener;
 import com.github.zorroware.initium.tasks.StatusTask;
-import com.github.zorroware.initium.command.general.PingCommand;
-import com.github.zorroware.initium.command.help.HelpCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 

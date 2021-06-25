@@ -26,11 +26,11 @@ import com.github.zorroware.initium.Initium;
 import com.github.zorroware.initium.command.Command;
 import com.github.zorroware.initium.command.CommandParser;
 import com.github.zorroware.initium.config.ConfigSchema;
+import com.github.zorroware.initium.util.exception.CommandNotFoundException;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -41,7 +41,6 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * A message listener that handles processing and executing commands.
@@ -50,45 +49,43 @@ public class CommandListener implements EventListener {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private static final ConfigSchema CONFIG = Initium.config;
-    private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
-    private static final Map<String, String> ALIASES = Initium.ALIASES;
-
-    private static final ExecutorService THREAD_POOL = Executors.newFixedThreadPool(
-            CONFIG.getParsingThreads() == 0 ? Runtime.getRuntime().availableProcessors() : CONFIG.getParsingThreads());
-    private static final Map<User, ExecutorService> USER_THREADS = new HashMap<>();
+    private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (!(event instanceof MessageReceivedEvent messageReceivedEvent)) return;
 
         // These checks go first because they're most likely to fail, saving processing power
-        // These aren't multithreaded due to the overhead of submitting a task to the thread pool
         if (!messageReceivedEvent.getMessage().getContentRaw().startsWith(CONFIG.getPrefix())) return;
         if (messageReceivedEvent.getChannelType().equals(ChannelType.PRIVATE)) return;
         if (messageReceivedEvent.getAuthor().isBot()) return;
 
         // Submit to thread pool for command processing
         THREAD_POOL.submit(() -> {
-            // Temporary semi-parsing
-            String tmpName = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
-            if (!COMMANDS.containsKey(tmpName) && !ALIASES.containsKey(tmpName)) return;
+            String name = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
 
-            CommandParser.CommandData commandData = CommandParser.parseData(messageReceivedEvent);
+            // Command parsing
+            CommandParser.CommandData commandData;
+            try {
+                commandData = CommandParser.parseData(messageReceivedEvent.getMessage().getContentRaw(), name);
+            } catch (CommandNotFoundException e) {
+                return;
+            }
 
             // Assign references
-            String name = commandData.getName();
             Command command = commandData.getCommand();
             String[] args = commandData.getArgs();
 
+            // Permissions
             EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
             EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
             Permission[] commandPermissions = command.getPermissions();
-
             List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
 
             boolean botHasRequiredPermissions = botPermissions.containsAll(commandPermissionsList);
             boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
 
+            // Permissions check
             if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
                 EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
@@ -117,7 +114,8 @@ public class CommandListener implements EventListener {
                 return;
             }
 
-            if (command.isNSFW() && !messageReceivedEvent.getTextChannel().isNSFW()) { // if (the command being run is NSFW but the channel isn't)
+            // NSFW check
+            if (command.isNSFW() && !messageReceivedEvent.getTextChannel().isNSFW()) {
                 EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
                 embedBuilder.setTitle("NSFW Channel Required");
@@ -132,31 +130,19 @@ public class CommandListener implements EventListener {
             String tag = messageReceivedEvent.getAuthor().getAsTag();
             String flatArgs = Arrays.toString(args);
 
-            // Manage ExecutorService for individual user
-            User commandUser = messageReceivedEvent.getAuthor();
-            ExecutorService executorService = USER_THREADS.computeIfAbsent(commandUser, k -> Executors.newFixedThreadPool(1));
+            // Command execution
+            try {
+                command.execute(messageReceivedEvent, args);
+            } catch (Exception e) {
+                LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, e));
 
-            // Submit execution to user's thread
-            executorService.submit(() -> {
-                try {
-                    command.execute(messageReceivedEvent, args);
-                } catch (Exception ex) {
-                    LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, ex));
+                // Dispatch error message
+                EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", e.getMessage());
+                messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
+                return;
+            }
 
-                    // Dispatch error message
-                    EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", ex.getMessage());
-                    messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
-                    return;
-                }
-
-                LOGGER.info(String.format("%s executed '%s' with arguments '%s'", tag, name, flatArgs));
-
-                // Terminate the executor if it has no commands queued
-                if (((ThreadPoolExecutor) executorService).getQueue().size() == 0) {
-                    USER_THREADS.remove(commandUser);
-                    executorService.shutdown();
-                }
-            });
+            LOGGER.info(String.format("%s executed '%s' with arguments '%s'", tag, name, flatArgs));
         });
     }
 }
