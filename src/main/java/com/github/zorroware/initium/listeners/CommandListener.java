@@ -24,9 +24,7 @@ package com.github.zorroware.initium.listeners;
 
 import com.github.zorroware.initium.Initium;
 import com.github.zorroware.initium.command.Command;
-import com.github.zorroware.initium.command.CommandParser;
 import com.github.zorroware.initium.config.ConfigSchema;
-import com.github.zorroware.initium.util.exception.CommandNotFoundException;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -49,6 +47,9 @@ public class CommandListener implements EventListener {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private static final ConfigSchema CONFIG = Initium.config;
+    private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
+    private static final Map<String, String> ALIASES = Initium.ALIASES;
+
     private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
     @Override
@@ -62,19 +63,20 @@ public class CommandListener implements EventListener {
 
         // Submit to thread pool for command processing
         THREAD_POOL.submit(() -> {
-            String name = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ")[0];
-
             // Command parsing
-            CommandParser.CommandData commandData;
-            try {
-                commandData = CommandParser.parseData(messageReceivedEvent.getMessage().getContentRaw(), name);
-            } catch (CommandNotFoundException e) {
+            String[] formatted = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ");
+            String name = formatted[0];
+            String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
+
+            // Getting command object
+            Command command;
+            if (COMMANDS.containsKey(name)) {
+                command = COMMANDS.get(name);
+            } else if (ALIASES.containsKey(name)) {
+                command = COMMANDS.get(ALIASES.get(name));
+            } else {
                 return;
             }
-
-            // Assign references
-            Command command = commandData.getCommand();
-            String[] args = commandData.getArgs();
 
             // Permissions
             EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
