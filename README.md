@@ -5,7 +5,7 @@ A high-performance Discord bot template written in Java 16 and JDA that focuses 
 [Reperak](https://github.com/ReperakPro) - Main Developer
 
 ##### License
-Initium is licensed under the ZSLv1r0. You can find it [here](LICENSE).
+Initium is licensed under the GNU GPLv3. You can find it [here](LICENSE).
 ____
 
 ## Java 16 Disclaimer
