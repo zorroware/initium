@@ -1,0 +1,248 @@
+From 0bde6986a41b98ec7826674ea120f57f31a443bf Mon Sep 17 00:00:00 2001
+From: ReperakPro <70391222+ReperakPro@users.noreply.github.com>
+Date: Tue, 29 Jun 2021 20:38:44 -0500
+Subject: [PATCH] new: Database support using Nitrite
+
+---
+ build.gradle.kts                              |  1 +
+ .../com/github/zorroware/initium/Initium.java |  3 +
+ .../zorroware/initium/db/DatabaseHandler.java | 87 +++++++++++++++++++
+ .../initium/db/schema/GuildSchema.java        | 42 +++++++++
+ .../initium/db/schema/UserSchema.java         | 42 +++++++++
+ 5 files changed, 175 insertions(+)
+ create mode 100644 src/main/java/com/github/zorroware/initium/db/DatabaseHandler.java
+ create mode 100644 src/main/java/com/github/zorroware/initium/db/schema/GuildSchema.java
+ create mode 100644 src/main/java/com/github/zorroware/initium/db/schema/UserSchema.java
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 950b398..35f6046 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -44,6 +44,7 @@ dependencies {
+     implementation(group = "org.apache.logging.log4j", name = "log4j-api",          version = "2.14.1")
+     implementation(group = "org.apache.logging.log4j", name = "log4j-core",         version = "2.14.1")
+     implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j18-impl", version = "2.14.1")
++    implementation(group = "org.dizitart",             name = "nitrite",            version = "3.4.3")
+     implementation(group = "org.slf4j",                name = "slf4j-api",          version = "1.7.31")
+ }
+ 
+diff --git a/src/main/java/com/github/zorroware/initium/Initium.java b/src/main/java/com/github/zorroware/initium/Initium.java
+index 4128c23..a2dc607 100644
+--- a/src/main/java/com/github/zorroware/initium/Initium.java
++++ b/src/main/java/com/github/zorroware/initium/Initium.java
+@@ -30,6 +30,7 @@ import com.github.zorroware.initium.listeners.ReadyListener;
+ import com.github.zorroware.initium.tasks.StatusTask;
+ import net.dv8tion.jda.api.JDA;
+ import net.dv8tion.jda.api.JDABuilder;
++import org.dizitart.no2.Nitrite;
+ 
+ import javax.security.auth.login.LoginException;
+ import java.io.IOException;
+@@ -43,12 +44,14 @@ import java.util.Timer;
+ public class Initium {
+     public static ConfigSchema config;
+     public static JDA jda;
++    public static Nitrite db;
+     public static final Map<String, Command> COMMANDS = new HashMap<>();
+     public static final Map<String, String> ALIASES = new HashMap<>();
+     public static final Timer TIMER = new Timer();
+ 
+     public static void main(String[] args) throws IOException, LoginException {
+         config = new ConfigLoader("config.toml").load();
++        db = Nitrite.builder().filePath("database.db").compressed().openOrCreate();
+         jda = JDABuilder.createDefault(config.getToken()).build();
+ 
+         registerCommands();
+diff --git a/src/main/java/com/github/zorroware/initium/db/DatabaseHandler.java b/src/main/java/com/github/zorroware/initium/db/DatabaseHandler.java
+new file mode 100644
+index 0000000..ff969b1
+--- /dev/null
++++ b/src/main/java/com/github/zorroware/initium/db/DatabaseHandler.java
+@@ -0,0 +1,87 @@
++/*
++ * Initium <https://www.github.com/zorroware/initium>
++ * Copyright (C) 2021 Zorroware
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program. If not, see <https://www.gnu.org/licenses/>.
++ */
++
++package com.github.zorroware.initium.db;
++
++import com.github.zorroware.initium.Initium;
++import com.github.zorroware.initium.db.schema.GuildSchema;
++import com.github.zorroware.initium.db.schema.UserSchema;
++import lombok.Getter;
++import net.dv8tion.jda.api.entities.Guild;
++import net.dv8tion.jda.api.entities.User;
++import org.dizitart.no2.Nitrite;
++import org.dizitart.no2.objects.Cursor;
++import org.dizitart.no2.objects.ObjectRepository;
++
++import static org.dizitart.no2.objects.filters.ObjectFilters.eq;
++
++/**
++ * Provides abstraction for the Nitrite database.
++ */
++public class DatabaseHandler {
++    private static final Nitrite DB = Initium.db;
++
++    @Getter
++    private static final ObjectRepository<UserSchema> userRepository = DB.getRepository(UserSchema.class);
++    @Getter
++    private static final ObjectRepository<GuildSchema> guildRepository = DB.getRepository(GuildSchema.class);
++
++    /**
++     * Searches the database for a user. If the user is not found, a new one is created.
++     *
++     * @param user the {@link User} to process in the database
++     * @return processed {@link UserSchema}
++     */
++    public static UserSchema processUser(User user) {
++        Cursor<UserSchema> cursor = userRepository.find(eq("userId", user.getId()));
++
++        UserSchema userSchema;
++        if (cursor.size() == 0) {
++            userSchema = new UserSchema();
++            userSchema.setUserId(user.getId());
++
++            userRepository.insert(userSchema);
++        } else {
++            userSchema = cursor.firstOrDefault();
++        }
++
++        return userSchema;
++    }
++
++    /**
++     * Searches the database for a user. If the user is not found, a new one is created.
++     *
++     * @param guild the {@link Guild} to process in the database
++     * @return processed {@link GuildSchema}
++     */
++    public static GuildSchema processGuild(Guild guild) {
++        Cursor<GuildSchema> cursor = guildRepository.find(eq("guildId", guild.getId()));
++
++        GuildSchema guildSchema;
++        if (cursor.size() == 0) {
++            guildSchema = new GuildSchema();
++            guildSchema.setGuildId(guild.getId());
++
++            guildRepository.insert(guildSchema);
++        } else {
++            guildSchema = cursor.firstOrDefault();
++        }
++
++        return guildSchema;
++    }
++}
+diff --git a/src/main/java/com/github/zorroware/initium/db/schema/GuildSchema.java b/src/main/java/com/github/zorroware/initium/db/schema/GuildSchema.java
+new file mode 100644
+index 0000000..34f4084
+--- /dev/null
++++ b/src/main/java/com/github/zorroware/initium/db/schema/GuildSchema.java
+@@ -0,0 +1,42 @@
++/*
++ * Initium <https://www.github.com/zorroware/initium>
++ * Copyright (C) 2021 Zorroware
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program. If not, see <https://www.gnu.org/licenses/>.
++ */
++
++package com.github.zorroware.initium.db.schema;
++
++import com.github.zorroware.initium.db.DatabaseHandler;
++import lombok.Getter;
++import lombok.Setter;
++import org.dizitart.no2.objects.Id;
++
++/**
++ * A class representing a Discord guild in the database.
++ */
++@Getter
++@Setter
++public class GuildSchema {
++    @Id
++    String guildId;
++
++    /**
++     * Saves a guild to the database.
++     * When performing any write operation, this must be called else the guild will not save.
++     */
++    public void saveGuild() {
++        DatabaseHandler.getGuildRepository().update(this);
++    }
++}
+diff --git a/src/main/java/com/github/zorroware/initium/db/schema/UserSchema.java b/src/main/java/com/github/zorroware/initium/db/schema/UserSchema.java
+new file mode 100644
+index 0000000..ceca846
+--- /dev/null
++++ b/src/main/java/com/github/zorroware/initium/db/schema/UserSchema.java
+@@ -0,0 +1,42 @@
++/*
++ * Initium <https://www.github.com/zorroware/initium>
++ * Copyright (C) 2021 Zorroware
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program. If not, see <https://www.gnu.org/licenses/>.
++ */
++
++package com.github.zorroware.initium.db.schema;
++
++import com.github.zorroware.initium.db.DatabaseHandler;
++import lombok.Getter;
++import lombok.Setter;
++import org.dizitart.no2.objects.Id;
++
++/**
++ * A class representing a Discord user in the database.
++ */
++@Getter
++@Setter
++public class UserSchema {
++    @Id
++    String userId;
++
++    /**
++     * Saves a user to the database.
++     * When performing any write operation, this must be called else the user will not save.
++     */
++    public void saveUser() {
++        DatabaseHandler.getUserRepository().update(this);
++    }
++}
+\ No newline at end of file
+-- 
+2.32.0
+
