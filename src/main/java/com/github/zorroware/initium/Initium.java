@@ -30,7 +30,6 @@ import com.github.zorroware.initium.listeners.ReadyListener;
 import com.github.zorroware.initium.tasks.StatusTask;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import org.dizitart.no2.Nitrite;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -44,14 +43,12 @@ import java.util.Timer;
 public class Initium {
     public static ConfigSchema config;
     public static JDA jda;
-    public static Nitrite db;
     public static final Map<String, Command> COMMANDS = new HashMap<>();
     public static final Map<String, String> ALIASES = new HashMap<>();
     public static final Timer TIMER = new Timer();
 
     public static void main(String[] args) throws IOException, LoginException {
         config = new ConfigLoader("config.toml").load();
-        db = Nitrite.builder().filePath("database.db").compressed().openOrCreate();
         jda = JDABuilder.createDefault(config.getToken()).build();
 
         registerCommands();
