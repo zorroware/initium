@@ -40,7 +40,7 @@ public class AvatarCommand extends Command {
         } else if (mentionedUsers.size() != 0) {
             target = mentionedUsers.get(0);
         } else {
-            throw new IllegalArgumentException("No user was mentioned");
+            throw new IllegalArgumentException("No user mentioned");
         }
 
         EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);

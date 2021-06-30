@@ -31,10 +31,10 @@ import java.util.Arrays;
 public class KickCommand extends Command {
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
-        if (messageReceivedEvent.getMessage().getMentionedUsers().isEmpty()) throw new IllegalArgumentException("No users mentioned");
+        if (messageReceivedEvent.getMessage().getMentionedUsers().isEmpty()) throw new IllegalArgumentException("No user mentioned");
 
         Member target = messageReceivedEvent.getMessage().getMentionedMembers().get(0);
-        String reason = args.length <= 1 ? "No reason provided." : String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+        String reason = args.length <= 1 ? "No reason provided" : String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
         messageReceivedEvent.getGuild().kick(target, reason).queue();
 
