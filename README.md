@@ -51,7 +51,14 @@ If you don't have Java 16 already, download the corresponding JDK. Use the free 
 
 ### Refactoring
 Chances are, you don't want to keep our package name. A good IDE will have refactoring support.
-Refactor the package name, and update the `mainClass` field in [the build script](build.gradle.kts)
+
+Refactor the following:
+* The package name
+* `mainClass` in [the build script](build.gradle.kts)
+* `rootProject.name` in [the project settings](settings.gradle.kts)
+* `rollingFileName` property in [the Log4j2 configuration](src/main/resources/log4j2.xml)
+
+Test to make sure it builds correctly.
 
 ### Configuring
 When running your Initium-based bot, it checks for a file named "config.toml" in the current working directory. Copy the TOML below and put it into a new file with that name.
