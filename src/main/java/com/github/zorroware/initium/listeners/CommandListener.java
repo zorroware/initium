@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
  * A message listener that handles processing and executing commands.
  */
 public class CommandListener implements EventListener {
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
 
     private static final ConfigSchema CONFIG = Initium.config;
     private static final Map<String, AbstractCommand> COMMANDS = Initium.COMMANDS;
