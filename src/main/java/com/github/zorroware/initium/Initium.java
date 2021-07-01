@@ -35,7 +35,9 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The main class for the bot.
@@ -45,7 +47,7 @@ public class Initium {
     public static JDA jda;
     public static final Map<String, Command> COMMANDS = new HashMap<>();
     public static final Map<String, String> ALIASES = new HashMap<>();
-    public static final Timer TIMER = new Timer();
+    public static final ScheduledExecutorService TASK_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 
     public static void main(String[] args) throws IOException, LoginException {
         config = new ConfigLoader("config.toml").load();
@@ -81,6 +83,6 @@ public class Initium {
     }
 
     private static void registerTasks() {
-        TIMER.schedule(new StatusTask(jda.getPresence()), 0, 30000);
+        TASK_EXECUTOR.schedule(new StatusTask(jda.getPresence()).runFirstTime(), 30, TimeUnit.SECONDS);
     }
 }

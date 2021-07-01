@@ -18,31 +18,16 @@
 
 package com.github.zorroware.initium.tasks;
 
-import com.github.zorroware.initium.Initium;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.managers.Presence;
-
 /**
- * A task that changes the status over time.
+ * Acts as a solution to {@link java.util.Timer} tasks not running as soon as they are initialized.
+ * Extending this class is helpful even if the task doesn't need to run on start.
  */
-public class StatusTask extends ImmediateTask {
-    private static final String PREFIX = Initium.config.getPrefix();
-    private static final Activity[] ACTIVITIES = {
-            Activity.listening(PREFIX + "help"),
-            Activity.watching("for commands"),
-            Activity.playing("with JVM args")
-    };
-    private final Presence PRESENCE;
-
-    int index = 0;
-
-    public StatusTask(Presence PRESENCE) {
-        this.PRESENCE = PRESENCE;
-    }
-
-    @Override
-    public void run() {
-        PRESENCE.setActivity(ACTIVITIES[index]);
-        index = (index + 1) % ACTIVITIES.length;
+public abstract class ImmediateTask implements Runnable {
+    /**
+     * The same as {@link Runnable}'s {@code run} method but returning the runnable.
+     */
+    public Runnable runFirstTime() {
+        run();
+        return this;
     }
 }
