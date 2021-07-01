@@ -27,9 +27,16 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class StatusUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatusUtil.class);
+/**
+ * Provides methods for displaying important messages to the log.
+ */
+public class NotificationUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationUtil.class);
 
+    /**
+     * Checks the JDA Maven repository for updates to JDA, and displays a message if an update is found.
+     * The message content and type changes depending on how outdated the current JDA version is.
+     */
     @SneakyThrows
     public static void handleUpdateNotification() {
         // Parse current release build from Maven metadata
