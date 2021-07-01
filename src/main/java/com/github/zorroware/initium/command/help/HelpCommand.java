@@ -19,7 +19,7 @@
 package com.github.zorroware.initium.command.help;
 
 import com.github.zorroware.initium.Initium;
-import com.github.zorroware.initium.command.Command;
+import com.github.zorroware.initium.command.AbstractCommand;
 import com.github.zorroware.initium.command.CommandGroup;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.util.EmbedUtil;
@@ -28,9 +28,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.*;
 
-public class HelpCommand extends Command {
+public class HelpCommand extends AbstractCommand {
     private static final ConfigSchema CONFIG = Initium.config;
-    private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
+    private static final Map<String, AbstractCommand> COMMANDS = Initium.COMMANDS;
 
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
@@ -57,7 +57,7 @@ public class HelpCommand extends Command {
             String commandName = args[0];
 
             if (COMMANDS.containsKey(commandName)) {
-                Command command = COMMANDS.get(commandName);
+                AbstractCommand command = COMMANDS.get(commandName);
 
                 embedBuilder.setTitle("Command Info • " + commandName);
                 embedBuilder.setDescription(command.getDescription() == null ? "No description provided." : command.getDescription());

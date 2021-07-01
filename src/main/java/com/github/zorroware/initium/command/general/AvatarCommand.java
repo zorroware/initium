@@ -18,7 +18,7 @@
 
 package com.github.zorroware.initium.command.general;
 
-import com.github.zorroware.initium.command.Command;
+import com.github.zorroware.initium.command.AbstractCommand;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -28,7 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AvatarCommand extends Command {
+public class AvatarCommand extends AbstractCommand {
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         List<User> mentionedUsers = messageReceivedEvent.getMessage().getMentionedUsers();

@@ -22,7 +22,7 @@ package com.github.zorroware.initium.tasks;
  * Acts as a solution to {@link java.util.Timer} tasks not running as soon as they are initialized.
  * Extending this class is helpful even if the task doesn't need to run on start.
  */
-public abstract class ImmediateTask implements Runnable {
+public abstract class AbstractTask implements Runnable {
     /**
      * The same as {@link Runnable}'s {@code run} method but returning the runnable.
      */

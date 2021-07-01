@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 /**
  * An abstract class representing a full command.
  */
-public abstract class Command {
+public abstract class AbstractCommand {
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
     }
 

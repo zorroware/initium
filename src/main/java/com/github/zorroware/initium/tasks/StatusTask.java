@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.managers.Presence;
 /**
  * A task that changes the status over time.
  */
-public class StatusTask extends ImmediateTask {
+public class StatusTask extends AbstractTask {
     private static final String PREFIX = Initium.config.getPrefix();
     private static final Activity[] ACTIVITIES = {
             Activity.listening(PREFIX + "help"),

@@ -19,7 +19,7 @@
 package com.github.zorroware.initium.listeners;
 
 import com.github.zorroware.initium.Initium;
-import com.github.zorroware.initium.command.Command;
+import com.github.zorroware.initium.command.AbstractCommand;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,7 +43,7 @@ public class CommandListener implements EventListener {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private static final ConfigSchema CONFIG = Initium.config;
-    private static final Map<String, Command> COMMANDS = Initium.COMMANDS;
+    private static final Map<String, AbstractCommand> COMMANDS = Initium.COMMANDS;
     private static final Map<String, String> ALIASES = Initium.ALIASES;
 
     private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
@@ -65,7 +65,7 @@ public class CommandListener implements EventListener {
             String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
 
             // Getting command object
-            Command command;
+            AbstractCommand command;
             if (COMMANDS.containsKey(name)) {
                 command = COMMANDS.get(name);
             } else if (ALIASES.containsKey(name)) {

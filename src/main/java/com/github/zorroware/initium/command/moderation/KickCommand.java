@@ -18,7 +18,7 @@
 
 package com.github.zorroware.initium.command.moderation;
 
-import com.github.zorroware.initium.command.Command;
+import com.github.zorroware.initium.command.AbstractCommand;
 import com.github.zorroware.initium.command.CommandGroup;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
 
-public class KickCommand extends Command {
+public class KickCommand extends AbstractCommand {
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         if (messageReceivedEvent.getMessage().getMentionedUsers().isEmpty()) throw new IllegalArgumentException("No user mentioned");

@@ -18,7 +18,7 @@
 
 package com.github.zorroware.initium;
 
-import com.github.zorroware.initium.command.Command;
+import com.github.zorroware.initium.command.AbstractCommand;
 import com.github.zorroware.initium.command.general.AvatarCommand;
 import com.github.zorroware.initium.command.general.PingCommand;
 import com.github.zorroware.initium.command.help.HelpCommand;
@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 public class Initium {
     public static ConfigSchema config;
     public static JDA jda;
-    public static final Map<String, Command> COMMANDS = new HashMap<>();
+    public static final Map<String, AbstractCommand> COMMANDS = new HashMap<>();
     public static final Map<String, String> ALIASES = new HashMap<>();
     public static final ScheduledExecutorService TASK_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 

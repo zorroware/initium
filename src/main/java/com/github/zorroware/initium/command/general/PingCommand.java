@@ -18,12 +18,12 @@
 
 package com.github.zorroware.initium.command.general;
 
-import com.github.zorroware.initium.command.Command;
+import com.github.zorroware.initium.command.AbstractCommand;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-public class PingCommand extends Command {
+public class PingCommand extends AbstractCommand {
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         long start = System.currentTimeMillis();
