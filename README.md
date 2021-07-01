@@ -1,4 +1,7 @@
 # Initium
+![License](https://img.shields.io/github/license/zorroware/initium?style=flat-square)
+![Build Status](https://img.shields.io/github/workflow/status/zorroware/initium/Gradle%20CI?style=flat-square)
+
 A high-performance Discord bot template written in Java 16 and JDA that focuses on speed, elegance, and ease of use
 
 ##### Credits
