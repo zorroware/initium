@@ -49,10 +49,11 @@ public class Initium {
     public static final Map<String, String> ALIASES = new HashMap<>();
     public static final ScheduledExecutorService TASK_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 
-    public static void main(String[] args) throws IOException, LoginException {
+    public static void main(String[] args) throws IOException, LoginException, InterruptedException {
         config = new ConfigLoader("config.toml").load();
         jda = JDABuilder.createDefault(config.getToken()).build();
 
+        jda.awaitReady();
         registerCommands();
         registerListeners();
         registerTasks();
