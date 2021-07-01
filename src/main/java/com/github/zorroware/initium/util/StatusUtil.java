@@ -16,35 +16,24 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.listeners;
+package com.github.zorroware.initium.util;
 
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDAInfo;
-import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-/**
- * Displays bot information on startup.
- */
-public class ReadyListener implements EventListener {
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+public class StatusUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatusUtil.class);
 
     @SneakyThrows
-    @Override
-    public void onEvent(@Nonnull GenericEvent event) {
-        if (!(event instanceof ReadyEvent readyEvent)) return;
-        readyEvent.getJDA().removeEventListener(this); // ReadyEvent only fires once
-
+    public static void handleUpdateNotification() {
         // Parse current release build from Maven metadata
-        String availableVersion = new Scanner(new URL("https://m2.dv8tion.net/releases/net/dv8tion/JDA/maven-metadata.xml").openStream(),StandardCharsets.UTF_8)
+        String availableVersion = new Scanner(new URL("https://m2.dv8tion.net/releases/net/dv8tion/JDA/maven-metadata.xml").openStream(), StandardCharsets.UTF_8)
                 .useDelimiter("\\A")
                 .next()
                 .split("<release>")[1]

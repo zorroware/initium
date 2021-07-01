@@ -26,8 +26,8 @@ import com.github.zorroware.initium.command.moderation.KickCommand;
 import com.github.zorroware.initium.config.ConfigLoader;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.listeners.CommandListener;
-import com.github.zorroware.initium.listeners.ReadyListener;
 import com.github.zorroware.initium.tasks.StatusTask;
+import com.github.zorroware.initium.util.StatusUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
@@ -57,6 +57,8 @@ public class Initium {
         registerCommands();
         registerListeners();
         registerTasks();
+
+        StatusUtil.handleUpdateNotification();
     }
 
     private static void registerCommands() {
@@ -80,7 +82,6 @@ public class Initium {
 
     private static void registerListeners() {
         jda.addEventListener(new CommandListener());
-        jda.addEventListener(new ReadyListener());
     }
 
     private static void registerTasks() {
