@@ -33,7 +33,7 @@ repositories {
 
 dependencies {
     // JDA
-    implementation(group = "net.dv8tion",              name = "JDA",                version = "4.3.0_282") { exclude(module = "opus-java") }
+    implementation(group = "net.dv8tion",              name = "JDA",                version = "4.3.0_289") { exclude(module = "opus-java") }
 
     // General Libraries
     implementation(group = "com.google.guava",         name = "guava",              version = "30.1.1-jre")
