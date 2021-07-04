@@ -24,6 +24,7 @@ import com.github.zorroware.initium.command.CommandGroup;
 import com.github.zorroware.initium.config.ConfigSchema;
 import com.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.*;
@@ -71,16 +72,32 @@ public class HelpCommand extends AbstractCommand {
 
                 // Aliases field
                 StringBuilder aliasesStringBuilder = new StringBuilder();
-                Iterator<String> iterator = Arrays.stream(command.getAliases()).iterator();
-                while (iterator.hasNext()) {
-                    aliasesStringBuilder.append('`').append(iterator.next()).append('`');
-                    if (iterator.hasNext()) {
-                        aliasesStringBuilder.append(", ");
+                if (command.getAliases().length > 0) {
+                    Iterator<String> iterator = Arrays.stream(command.getAliases()).iterator();
+                    while (iterator.hasNext()) {
+                        aliasesStringBuilder.append('`').append(iterator.next()).append('`');
+                        if (iterator.hasNext()) {
+                            aliasesStringBuilder.append(", ");
+                        }
                     }
+                } else {
+                    aliasesStringBuilder.append("No aliases");
                 }
+
                 embedBuilder.addField("Aliases", aliasesStringBuilder.toString(), false);
 
-                embedBuilder.setColor(0x00ccdd);
+                // Permissions field
+                StringBuilder permissionsStringBuilder = new StringBuilder();
+                if (command.getPermissions().length > 0) {
+                    for (Permission permission : command.getPermissions()) {
+                        permissionsStringBuilder.append("• ").append(permission.getName()).append('\n');
+                    }
+                } else {
+                    permissionsStringBuilder.append("No permissions required");
+                }
+                embedBuilder.addField("Permissions", permissionsStringBuilder.toString(), false);
+
+                embedBuilder.setColor(0x22dd11);
             } else {
                 throw new IllegalArgumentException("Unknown command");
             }
