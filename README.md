@@ -66,7 +66,6 @@ Test to make sure it builds correctly.
 ### Configuring
 When running your Initium-based bot, it checks for a file named "config.toml" in the current working directory. Copy the TOML below and put it into a new file with that name.
 ```toml
-name = "Initium"
 prefix = "%"
 token = "TOKEN"
 ```

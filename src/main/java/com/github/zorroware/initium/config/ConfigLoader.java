@@ -45,7 +45,6 @@ public class ConfigLoader {
         TomlParseResult tomlParseResult = Toml.parse(CONFIG_PATH);
 
         ConfigSchema configSchema = new ConfigSchema();
-        configSchema.setName(tomlParseResult.getString("name"));
         configSchema.setPrefix(tomlParseResult.getString("prefix"));
         configSchema.setToken(tomlParseResult.getString("token"));
         return configSchema;
