@@ -1,11 +1,11 @@
 <div align="center">
 <h1>Initium</h1>
 <b>High-performance Discord bot template written in Java 16</b>
+<br><br>
 
 [![Build](https://img.shields.io/github/workflow/status/zorroware/initium/Gradle%20CI?style=for-the-badge)](https://github.com/zorroware/initium/actions)
 [![License](https://img.shields.io/github/license/zorroware/initium?style=for-the-badge)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/zorroware/initium?style=for-the-badge)](https://github.com/zorroware/initium/stargazers)
-
 </div>
 
 ## Features
