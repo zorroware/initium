@@ -30,12 +30,12 @@
 * Intuitive configuration system
   * Configuration done in the TOML language using [TomlJ](https://github.com/tomlj/tomlj)
 
+## Getting Started
+See [the wiki page](https://github.com/zorroware/initium/wiki/Getting-Started).
+
 ## Help Wanted
 If you have the technical knowledge to add these missing features, please feel free to open a pull request if you wish:
 * Automatic sharding
-
-## Getting Started
-See [the wiki page](https://github.com/zorroware/initium/wiki/Getting-Started).
 
 ## License
 Initium is made available to you under the [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
