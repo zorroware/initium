@@ -19,7 +19,7 @@
 package com.github.zorroware.initium.tasks;
 
 /**
- * Acts as a solution to {@link java.util.Timer} tasks not running as soon as they are initialized.
+ * Acts as a solution to {@link java.util.concurrent.ScheduledExecutorService} tasks not running as soon as they are initialized.
  * Extending this class is helpful even if the task doesn't need to run on start.
  */
 public abstract class AbstractTask implements Runnable {
