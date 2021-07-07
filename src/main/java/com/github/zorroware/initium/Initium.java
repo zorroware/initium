@@ -85,6 +85,6 @@ public class Initium {
     }
 
     private static void registerTasks() {
-        TASK_EXECUTOR.scheduleAtFixedRate(new StatusTask(jda.getPresence()), 0, 5, TimeUnit.SECONDS);
+        TASK_EXECUTOR.scheduleAtFixedRate(new StatusTask(jda.getPresence()), 0, 30, TimeUnit.SECONDS);
     }
 }
