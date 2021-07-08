@@ -7,7 +7,8 @@
   <p>
     <img src="https://img.shields.io/github/workflow/status/zorroware/initium/Gradle%20CI?style=for-the-badge" />
     <img src="https://img.shields.io/github/license/zorroware/initium?style=for-the-badge" />
-  </p>
+    <a href="https://discord.gg/QPgeT3VN4c"><img src="https://img.shields.io/discord/862783925093138443?color=7289DA&logo=discord&style=for-the-badge" /></a>
+</p>
 </div>
 
 ## Features
