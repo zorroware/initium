@@ -12,6 +12,7 @@
 </div>
 
 ## Features
+
 * A fast and simple command parser
   * Built-in permission handling
   * Command aliases
@@ -38,7 +39,10 @@ See [the wiki page](https://github.com/zorroware/initium/wiki/Getting-Started).
 
 ## Help Wanted
 If you have the technical knowledge to add these missing features, please feel free to open a pull request if you wish:
+
 * Automatic sharding
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## License
 Initium is made available to you under the [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
