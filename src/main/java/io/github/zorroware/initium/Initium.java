@@ -29,6 +29,7 @@ import io.github.zorroware.initium.listeners.CommandListener;
 import io.github.zorroware.initium.tasks.StatusTask;
 import io.github.zorroware.initium.util.NotificationUtil;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
@@ -55,7 +56,8 @@ public class Initium {
     // Tasks
     private static final @Getter ScheduledExecutorService taskService = Executors.newSingleThreadScheduledExecutor();
 
-    public static void main(String[] args) throws IOException, LoginException, InterruptedException {
+    @SneakyThrows
+    public static void main(String[] args) {
         config = new ConfigLoader("config.toml").load();
         jda = JDABuilder.createDefault(config.getToken()).build();
 
