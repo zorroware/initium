@@ -17,15 +17,22 @@
  */
 
 plugins {
+    // Application
     id("application")
+    // Java
     id("java")
 
+    // Shadow
     id("com.github.johnrengelman.shadow") version "7.0.0"
+    // Lombok
     id("io.freefair.lombok") version "6.0.0-m2"
 }
 
 repositories {
+    // JDA repository
     maven("https://m2.dv8tion.net/releases")
+
+    // Maven Central
     mavenCentral()
 }
 
@@ -46,17 +53,20 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.github.zorroware.initium.Initium")
+    // Define the main class
+    mainClass.set("io.github.zorroware.initium.Initium")
 }
 
 java {
+    // Force Java 16
     sourceCompatibility = JavaVersion.VERSION_16
     targetCompatibility = JavaVersion.VERSION_16
 }
 
 tasks {
     withType<AbstractArchiveTask>().configureEach {
-        from("LICENSE") // Include license within every jar
+        // Include license within every JAR
+        from("LICENSE")
 
         // Reproducible builds
         isPreserveFileTimestamps = false
@@ -64,16 +74,19 @@ tasks {
     }
 
     withType<JavaCompile>().configureEach {
+        // Force UTF-8
         options.encoding = "UTF-8"
     }
 
     jar {
+        // Enable multi release JAR; This fixes a warning from Log4J
         manifest.attributes["Multi-Release"] = true
     }
 
     shadowJar {
         minimize {
-            exclude(dependency("org.apache.logging.log4j:.*:.*")) // Log4J is broken by minimization due to its heavy usage of reflection
+            // Log4J is broken by minimization due to its heavy usage of reflection
+            exclude(dependency("org.apache.logging.log4j:.*:.*"))
         }
     }
 }

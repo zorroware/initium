@@ -16,9 +16,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.tasks;
+package io.github.zorroware.initium.tasks;
 
-import com.github.zorroware.initium.Initium;
+import io.github.zorroware.initium.Initium;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.managers.Presence;
 
@@ -26,11 +26,12 @@ import net.dv8tion.jda.api.managers.Presence;
  * A task that changes the status over time.
  */
 public class StatusTask implements Runnable {
-    private static final String PREFIX = Initium.config.getPrefix();
+    private static final String PREFIX = Initium.getConfig().getPrefix();
     private static final Activity[] ACTIVITIES = { Activity.listening(PREFIX + "help"),
                                                    Activity.watching("for commands") };
     private final Presence PRESENCE;
 
+    // Current position in the list of statuses
     int index = 0;
 
     public StatusTask(Presence PRESENCE) {

@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.util;
+package io.github.zorroware.initium.util;
 
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDAInfo;
@@ -31,6 +31,7 @@ import java.util.Scanner;
  * Provides methods for displaying important messages to the log.
  */
 public class NotificationUtil {
+    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationUtil.class);
 
     /**

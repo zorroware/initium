@@ -16,13 +16,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.command.help;
+package io.github.zorroware.initium.command.help;
 
-import com.github.zorroware.initium.Initium;
-import com.github.zorroware.initium.command.AbstractCommand;
-import com.github.zorroware.initium.command.CommandGroup;
-import com.github.zorroware.initium.config.ConfigSchema;
-import com.github.zorroware.initium.util.EmbedUtil;
+import io.github.zorroware.initium.Initium;
+import io.github.zorroware.initium.command.AbstractCommand;
+import io.github.zorroware.initium.command.CommandGroup;
+import io.github.zorroware.initium.config.ConfigSchema;
+import io.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -30,21 +30,23 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.*;
 
 public class HelpCommand extends AbstractCommand {
-    private static final ConfigSchema CONFIG = Initium.config;
-    private static final Map<String, AbstractCommand> COMMANDS = Initium.COMMANDS;
+    // References
+    private static final ConfigSchema CONFIG = Initium.getConfig();
+    private static final Map<String, AbstractCommand> COMMAND_MAP = Initium.getCommandMap();
 
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
 
-        if (args.length == 0) {
+        if (args.length == 0) {  // Main help menu
             embedBuilder.setTitle("Command Help");
             embedBuilder.setDescription(String.format("To get information on a specific command, run `%shelp %s`", CONFIG.getPrefix(), getUsage()));
 
             for (CommandGroup commandGroup : CommandGroup.values()) {
                 List<String> commandsList = new ArrayList<>();
 
-                COMMANDS.forEach((name, command) -> {
+                // Iterate through each command
+                COMMAND_MAP.forEach((name, command) -> {
                     if (command.getCommandGroup() == commandGroup && !command.isHidden()) {
                         commandsList.add(name);
                     }
@@ -54,11 +56,11 @@ public class HelpCommand extends AbstractCommand {
             }
 
             embedBuilder.setColor(0x4444ff);
-        } else {
+        } else {  // Individual command help
             String commandName = args[0];
 
-            if (COMMANDS.containsKey(commandName)) {
-                AbstractCommand command = COMMANDS.get(commandName);
+            if (COMMAND_MAP.containsKey(commandName)) {
+                AbstractCommand command = COMMAND_MAP.get(commandName);
 
                 embedBuilder.setTitle("Command Info • " + commandName);
                 embedBuilder.setDescription(command.getDescription() == null ? "No description provided." : command.getDescription());

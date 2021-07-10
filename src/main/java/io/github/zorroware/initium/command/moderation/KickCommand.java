@@ -16,17 +16,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.command.moderation;
+package io.github.zorroware.initium.command.moderation;
 
-import com.github.zorroware.initium.command.AbstractCommand;
-import com.github.zorroware.initium.command.CommandGroup;
-import com.github.zorroware.initium.util.EmbedUtil;
+import io.github.zorroware.initium.command.AbstractCommand;
+import io.github.zorroware.initium.command.CommandGroup;
+import io.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.util.Arrays;
 
 public class KickCommand extends AbstractCommand {
     @Override
@@ -34,7 +32,8 @@ public class KickCommand extends AbstractCommand {
         if (messageReceivedEvent.getMessage().getMentionedUsers().isEmpty()) throw new IllegalArgumentException("No user mentioned");
 
         Member target = messageReceivedEvent.getMessage().getMentionedMembers().get(0);
-        String reason = args.length <= 1 ? "No reason provided" : String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+
+        String reason = args.length <= 1 ? "No reason provided" : String.join(" ", args).substring(target.getAsMention().length() + 1);
 
         messageReceivedEvent.getGuild().kick(target, reason).queue();
 

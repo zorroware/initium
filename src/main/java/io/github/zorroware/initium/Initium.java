@@ -16,18 +16,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium;
+package io.github.zorroware.initium;
 
-import com.github.zorroware.initium.command.AbstractCommand;
-import com.github.zorroware.initium.command.general.AvatarCommand;
-import com.github.zorroware.initium.command.general.PingCommand;
-import com.github.zorroware.initium.command.help.HelpCommand;
-import com.github.zorroware.initium.command.moderation.KickCommand;
-import com.github.zorroware.initium.config.ConfigLoader;
-import com.github.zorroware.initium.config.ConfigSchema;
-import com.github.zorroware.initium.listeners.CommandListener;
-import com.github.zorroware.initium.tasks.StatusTask;
-import com.github.zorroware.initium.util.NotificationUtil;
+import io.github.zorroware.initium.command.AbstractCommand;
+import io.github.zorroware.initium.command.general.AvatarCommand;
+import io.github.zorroware.initium.command.general.PingCommand;
+import io.github.zorroware.initium.command.help.HelpCommand;
+import io.github.zorroware.initium.command.moderation.KickCommand;
+import io.github.zorroware.initium.config.ConfigLoader;
+import io.github.zorroware.initium.config.ConfigSchema;
+import io.github.zorroware.initium.listeners.CommandListener;
+import io.github.zorroware.initium.tasks.StatusTask;
+import io.github.zorroware.initium.util.NotificationUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
@@ -43,11 +44,16 @@ import java.util.concurrent.TimeUnit;
  * The main class for the bot.
  */
 public class Initium {
-    public static ConfigSchema config;
-    public static JDA jda;
-    public static final Map<String, AbstractCommand> COMMANDS = new HashMap<>();
-    public static final Map<String, String> ALIASES = new HashMap<>();
-    public static final ScheduledExecutorService TASK_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
+    // Core
+    private static @Getter ConfigSchema config;
+    private static @Getter JDA jda;
+
+    // Commands
+    private static final @Getter Map<String, AbstractCommand> commandMap = new HashMap<>();
+    private static final @Getter Map<String, String> aliasMap = new HashMap<>();
+
+    // Tasks
+    private static final @Getter ScheduledExecutorService taskService = Executors.newSingleThreadScheduledExecutor();
 
     public static void main(String[] args) throws IOException, LoginException, InterruptedException {
         config = new ConfigLoader("config.toml").load();
@@ -61,30 +67,39 @@ public class Initium {
         NotificationUtil.handleUpdateNotification();
     }
 
+    /**
+     * Loads commands into the command map and loads aliases into the alias map
+     */
     private static void registerCommands() {
         // General
-        COMMANDS.put("avatar", new AvatarCommand());
-        COMMANDS.put("ping", new PingCommand());
+        commandMap.put("avatar", new AvatarCommand());
+        commandMap.put("ping",   new PingCommand());
 
         // Help
-        COMMANDS.put("help", new HelpCommand());
+        commandMap.put("help",   new HelpCommand());
 
         // Moderation
-        COMMANDS.put("kick", new KickCommand());
+        commandMap.put("kick",   new KickCommand());
 
         // Aliases
-        for (String command : COMMANDS.keySet()) {
-            for (String alias : COMMANDS.get(command).getAliases()) {
-                ALIASES.put(alias, command);
+        for (String command : commandMap.keySet()) {
+            for (String alias : commandMap.get(command).getAliases()) {
+                aliasMap.put(alias, command);
             }
         }
     }
 
+    /**
+     * Loads listeners into the JDA
+     */
     private static void registerListeners() {
         jda.addEventListener(new CommandListener());
     }
 
+    /**
+     * Schedules tasks in a {@link ScheduledExecutorService}
+     */
     private static void registerTasks() {
-        TASK_EXECUTOR.scheduleAtFixedRate(new StatusTask(jda.getPresence()), 0, 30, TimeUnit.SECONDS);
+        taskService.scheduleAtFixedRate(new StatusTask(jda.getPresence()), 0, 30, TimeUnit.SECONDS);
     }
 }

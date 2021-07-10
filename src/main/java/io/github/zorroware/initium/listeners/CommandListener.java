@@ -16,12 +16,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.listeners;
+package io.github.zorroware.initium.listeners;
 
-import com.github.zorroware.initium.Initium;
-import com.github.zorroware.initium.command.AbstractCommand;
-import com.github.zorroware.initium.config.ConfigSchema;
-import com.github.zorroware.initium.util.EmbedUtil;
+import io.github.zorroware.initium.Initium;
+import io.github.zorroware.initium.command.AbstractCommand;
+import io.github.zorroware.initium.config.ConfigSchema;
+import io.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -40,41 +40,44 @@ import java.util.concurrent.Executors;
  * A message listener that handles processing and executing commands.
  */
 public class CommandListener implements EventListener {
+    // Logger
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
 
-    private static final ConfigSchema CONFIG = Initium.config;
-    private static final Map<String, AbstractCommand> COMMANDS = Initium.COMMANDS;
-    private static final Map<String, String> ALIASES = Initium.ALIASES;
+    // References
+    private static final ConfigSchema CONFIG = Initium.getConfig();
+    private static final Map<String, AbstractCommand> COMMAND_MAP = Initium.getCommandMap();
+    private static final Map<String, String> ALIAS_MAP = Initium.getAliasMap();
 
+    // Command executor
     private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (!(event instanceof MessageReceivedEvent messageReceivedEvent)) return;
 
-        // These checks go first because they're most likely to fail, saving processing power
+        // These checks go first because they're most likely to fail
         if (!messageReceivedEvent.getMessage().getContentRaw().startsWith(CONFIG.getPrefix())) return;
         if (messageReceivedEvent.getChannelType().equals(ChannelType.PRIVATE)) return;
         if (messageReceivedEvent.getAuthor().isBot()) return;
 
         // Submit to thread pool for command processing
-        THREAD_POOL.submit(() -> {
+        THREAD_POOL.execute(() -> {
             // Command parsing
             String[] formatted = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ");
             String name = formatted[0];
             String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
 
-            // Getting command object
+            // Matching to a command
             AbstractCommand command;
-            if (COMMANDS.containsKey(name)) {
-                command = COMMANDS.get(name);
-            } else if (ALIASES.containsKey(name)) {
-                command = COMMANDS.get(ALIASES.get(name));
+            if (COMMAND_MAP.containsKey(name)) {
+                command = COMMAND_MAP.get(name);
+            } else if (ALIAS_MAP.containsKey(name)) {
+                command = COMMAND_MAP.get(ALIAS_MAP.get(name));
             } else {
                 return;
             }
 
-            // Permissions
+            // Process permissions
             EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
             EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
             Permission[] commandPermissions = command.getPermissions();
@@ -85,19 +88,19 @@ public class CommandListener implements EventListener {
 
             // Permissions check
             if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
-                EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
-
-                embedBuilder.setTitle("Missing Permissions");
-                embedBuilder.setDescription("The following permissions are needed to run this command:");
+                EmbedBuilder embedBuilder = EmbedUtil.errorMessage(messageReceivedEvent, "Missing Permissions",
+                                                                   "The following permissions are required to run this command:");
 
                 for (Permission permission : commandPermissions) {
                     boolean botHasPermission = botPermissions.contains(permission);
                     boolean userHasPermission = userPermissions.contains(permission);
 
+                    // Use integers as an error code
                     int permissionMode = 0;
                     if (!botHasPermission) permissionMode += 1;
                     if (!userHasPermission) permissionMode += 2;
 
+                    // Match error code a description
                     String permissionIndicator = switch (permissionMode) {
                         case 1 -> "Bot";
                         case 2 -> "User";
@@ -114,12 +117,11 @@ public class CommandListener implements EventListener {
 
             // NSFW check
             if (command.isNSFW() && !messageReceivedEvent.getTextChannel().isNSFW()) {
-                EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
+                EmbedBuilder embedBuilder = EmbedUtil.errorMessage(messageReceivedEvent, "NSFW Channel",
+                                                                   "This command must be ran in an NSFW channel");
 
-                embedBuilder.setTitle("NSFW Channel Required");
-                embedBuilder.setDescription("This command must be ran in an NSFW channel.");
-                embedBuilder.setImage("https://support.discord.com/hc/article_attachments/360007795191/2_.jpg"); // Image from Discord's guide on NSFW channels
-                embedBuilder.setColor(0xff0000);
+                // Image from Discord's guide on NSFW channels
+                embedBuilder.setImage("https://support.discord.com/hc/article_attachments/360007795191/2_.jpg");
 
                 messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
                 return;

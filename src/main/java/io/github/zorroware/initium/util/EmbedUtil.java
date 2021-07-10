@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.util;
+package io.github.zorroware.initium.util;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -35,9 +35,8 @@ public class EmbedUtil {
     public static EmbedBuilder embedModel(MessageReceivedEvent messageReceivedEvent) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setAuthor(messageReceivedEvent.getAuthor().getName(), null, messageReceivedEvent.getAuthor().getAvatarUrl());
-        embedBuilder.setFooter("Powered by Initium");
+        embedBuilder.setFooter("Powered by Initium");  // It would be nice if you could keep this, but you don't have to
         embedBuilder.setTimestamp(Instant.now());
-
         return embedBuilder;
     }
 

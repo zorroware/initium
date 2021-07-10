@@ -16,18 +16,20 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.command.general;
+package io.github.zorroware.initium.command.general;
 
-import com.github.zorroware.initium.command.AbstractCommand;
-import com.github.zorroware.initium.util.EmbedUtil;
+import io.github.zorroware.initium.command.AbstractCommand;
+import io.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PingCommand extends AbstractCommand {
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
+        // Begin latency measurement
         long start = System.currentTimeMillis();
         messageReceivedEvent.getChannel().sendMessage(":ping_pong: Ping Test").queue(message -> {
+            // End latency measurement
             long end = System.currentTimeMillis();
             long apiLatency = end - start;
 
@@ -35,6 +37,13 @@ public class PingCommand extends AbstractCommand {
             pingEmbed.addField(":alarm_clock: API Latency", messageReceivedEvent.getJDA().getGatewayPing() + " ms", true);
             pingEmbed.addField(":robot: Client Latency", apiLatency + " ms", true);
 
+            /*
+             * Determine color for embed based on latency
+             *
+             * Less than 100    -> Green
+             * Less than 200    -> Yellow
+             * Greater than 200 -> Red
+             */
             int color;
             if (apiLatency < 100) {
                 color = 0x00ff00;
@@ -45,6 +54,7 @@ public class PingCommand extends AbstractCommand {
             }
             pingEmbed.setColor(color);
 
+            // Update the message with results
             message.editMessageEmbeds(pingEmbed.build()).queue();
         });
     }

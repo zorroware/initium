@@ -16,48 +16,53 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.command.general;
+package io.github.zorroware.initium.command.general;
 
-import com.github.zorroware.initium.command.AbstractCommand;
-import com.github.zorroware.initium.util.EmbedUtil;
+import io.github.zorroware.initium.command.AbstractCommand;
+import io.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.io.FilenameUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class AvatarCommand extends AbstractCommand {
+    // Image URL suffix
+    private static final String SUFFIX = "?size=1024";
+
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
-        List<User> mentionedUsers = messageReceivedEvent.getMessage().getMentionedUsers();
-        String sizeSuffix = "?size=1024";
-        User target;
+        User target;  // The user we're displaying the avatar of
 
-        if (args.length == 0) {
+        User mentionedUser;
+
+        if (args.length == 0) {  // If no argument provided, the target is the author
             target = messageReceivedEvent.getAuthor();
-        } else if (mentionedUsers.size() != 0) {
-            target = mentionedUsers.get(0);
+        } else if ((mentionedUser = messageReceivedEvent.getMessage().getMentionedUsers().get(0)) != null) {  // Check for mentioned users
+            target = mentionedUser;
         } else {
-            throw new IllegalArgumentException("No user mentioned");
+            throw new IllegalArgumentException("User not found");
         }
 
         EmbedBuilder embedBuilder = EmbedUtil.embedModel(messageReceivedEvent);
         embedBuilder.setTitle(target.getName() + "'s Avatar");
 
-        String url = target.getEffectiveAvatarUrl(); // Raw avatar URL
-        String cleanedUrl = FilenameUtils.removeExtension(target.getEffectiveAvatarUrl()); // Prune the file extension
+        String url = target.getEffectiveAvatarUrl();  // Raw avatar URL
+        String cleanedUrl = FilenameUtils.removeExtension(target.getEffectiveAvatarUrl());  // Prune the file extension
 
         List<String> formats = new ArrayList<>();
-        formats.add(String.format("[[png]](%s)", cleanedUrl + ".png" + sizeSuffix)); // PNG
-        formats.add(String.format("[[jpg]](%s)", cleanedUrl + ".jpg" + sizeSuffix)); // JPG
-        if (url.endsWith(".gif")) formats.add(String.format("[[gif]](%s)", cleanedUrl + ".gif" + sizeSuffix)); // GIF (if avatar is animated)
-        formats.add(String.format("[[webp]](%s)", cleanedUrl + ".webp" + sizeSuffix)); // WEBP
+        formats.add(String.format("[[png]](%s)", cleanedUrl + ".png" + SUFFIX));  // PNG
+        formats.add(String.format("[[jpg]](%s)", cleanedUrl + ".jpg" + SUFFIX));  // JPG
+        if (url.endsWith(".gif")) formats.add(String.format("[[gif]](%s)", cleanedUrl + ".gif" + SUFFIX));  // GIF (if avatar is animated)
+        formats.add(String.format("[[webp]](%s)", cleanedUrl + ".webp" + SUFFIX));  // WEBP
 
-        embedBuilder.setDescription(String.join(" ", formats)); // Assemble links into one string
+        embedBuilder.setDescription(String.join(" ", formats));  // Assemble links into one string
 
-        embedBuilder.setImage(url + sizeSuffix);
+        embedBuilder.setImage(url + SUFFIX);
         embedBuilder.setColor(0x6600bb);
 
         messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();

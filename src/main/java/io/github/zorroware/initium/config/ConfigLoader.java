@@ -16,7 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.github.zorroware.initium.config;
+package io.github.zorroware.initium.config;
 
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
