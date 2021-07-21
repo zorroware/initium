@@ -135,7 +135,7 @@ public class CommandListener implements EventListener {
             try {
                 command.execute(messageReceivedEvent, args);
             } catch (Exception e) {
-                LOGGER.error(String.format("%s failed '%s' with arguments '%s' and exception '%s'", tag, name, flatArgs, e));
+                LOGGER.error("{} failed {} with arguments {} and exception {}", tag, name, flatArgs, e);
 
                 // Dispatch error message
                 EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", e.getMessage());
@@ -143,7 +143,7 @@ public class CommandListener implements EventListener {
                 return;
             }
 
-            LOGGER.info(String.format("%s executed '%s' with arguments '%s'", tag, name, flatArgs));
+            LOGGER.info("{} executed {} with arguments {}", tag, name, flatArgs);
         });
     }
 }
