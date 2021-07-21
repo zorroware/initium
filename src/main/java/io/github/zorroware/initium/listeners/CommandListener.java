@@ -22,6 +22,7 @@ import io.github.zorroware.initium.Initium;
 import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.config.ConfigSchema;
 import io.github.zorroware.initium.util.EmbedUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -49,7 +50,7 @@ public class CommandListener implements EventListener {
     private static final Map<String, String> ALIAS_MAP = Initium.getAliasMap();
 
     // Command executor
-    private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
+    private static final @Getter ExecutorService threadPool = Executors.newCachedThreadPool();
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
@@ -61,7 +62,7 @@ public class CommandListener implements EventListener {
         if (messageReceivedEvent.getAuthor().isBot()) return;
 
         // Submit to thread pool for command processing
-        THREAD_POOL.execute(() -> {
+        threadPool.execute(() -> {
             // Command parsing
             String[] formatted = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ");
             String name = formatted[0];
