@@ -23,8 +23,7 @@ import io.github.zorroware.initium.command.general.AvatarCommand;
 import io.github.zorroware.initium.command.general.PingCommand;
 import io.github.zorroware.initium.command.help.HelpCommand;
 import io.github.zorroware.initium.command.moderation.KickCommand;
-import io.github.zorroware.initium.config.ConfigLoader;
-import io.github.zorroware.initium.config.ConfigSchema;
+import io.github.zorroware.initium.config.Config;
 import io.github.zorroware.initium.listeners.CommandListener;
 import io.github.zorroware.initium.tasks.StatusTask;
 import io.github.zorroware.initium.util.NotificationUtil;
@@ -33,8 +32,6 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
-import javax.security.auth.login.LoginException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -46,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Initium {
     // Core
-    private static @Getter ConfigSchema config;
+    private static @Getter Config config;
     private static @Getter JDA jda;
 
     // Commands
@@ -58,7 +55,7 @@ public class Initium {
 
     @SneakyThrows
     public static void main(String[] args) {
-        config = new ConfigLoader("config.toml").load();
+        config = Config.load("config.toml");
         jda = JDABuilder.createDefault(config.getToken()).build();
 
         jda.awaitReady();

@@ -20,7 +20,7 @@ package io.github.zorroware.initium.listeners;
 
 import io.github.zorroware.initium.Initium;
 import io.github.zorroware.initium.command.AbstractCommand;
-import io.github.zorroware.initium.config.ConfigSchema;
+import io.github.zorroware.initium.config.Config;
 import io.github.zorroware.initium.util.EmbedUtil;
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -45,7 +45,7 @@ public class CommandListener implements EventListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandListener.class);
 
     // References
-    private static final ConfigSchema CONFIG = Initium.getConfig();
+    private static final Config CONFIG = Initium.getConfig();
     private static final Map<String, AbstractCommand> COMMAND_MAP = Initium.getCommandMap();
     private static final Map<String, String> ALIAS_MAP = Initium.getAliasMap();
 
@@ -103,9 +103,9 @@ public class CommandListener implements EventListener {
 
                     // Match error code a description
                     String permissionIndicator = switch (permissionMode) {
-                        case 1 -> "Bot";
-                        case 2 -> "User";
-                        case 3 -> "Bot & User";
+                        case 1  -> "Bot";
+                        case 2  -> "User";
+                        case 3  -> "Bot & User";
                         default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
                     };
 

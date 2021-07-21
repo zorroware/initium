@@ -18,6 +18,8 @@
 
 package io.github.zorroware.initium.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 
@@ -26,27 +28,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Assembles an instance of {@link ConfigSchema} from a configuration file.
+ * A class of variables used for bot configuration
  */
-public class ConfigLoader {
-    private final Path CONFIG_PATH;
+@Getter @Setter
+public class Config {
+    private String prefix;
+    private String token;
 
     /**
-     * @param filename path of config file
+     * @return new instance of {@link Config} from file contents
      */
-    public ConfigLoader(String filename) {
-        this.CONFIG_PATH = Paths.get(filename);
-    }
+    public static Config load(String filename) throws IOException {
+        Path path = Paths.get(filename);
+        TomlParseResult tomlParseResult = Toml.parse(path);
 
-    /**
-     * @return assembled {@link ConfigSchema} object from the contents of the config file
-     */
-    public ConfigSchema load() throws IOException {
-        TomlParseResult tomlParseResult = Toml.parse(CONFIG_PATH);
-
-        ConfigSchema configSchema = new ConfigSchema();
-        configSchema.setPrefix(tomlParseResult.getString("prefix"));
-        configSchema.setToken(tomlParseResult.getString("token"));
-        return configSchema;
+        Config config = new Config();
+        config.setPrefix(tomlParseResult.getString("prefix"));
+        config.setToken(tomlParseResult.getString("token"));
+        return config;
     }
 }

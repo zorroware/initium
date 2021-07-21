@@ -21,7 +21,7 @@ package io.github.zorroware.initium.command.help;
 import io.github.zorroware.initium.Initium;
 import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.command.CommandGroup;
-import io.github.zorroware.initium.config.ConfigSchema;
+import io.github.zorroware.initium.config.Config;
 import io.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -31,7 +31,7 @@ import java.util.*;
 
 public class HelpCommand extends AbstractCommand {
     // References
-    private static final ConfigSchema CONFIG = Initium.getConfig();
+    private static final Config CONFIG = Initium.getConfig();
     private static final Map<String, AbstractCommand> COMMAND_MAP = Initium.getCommandMap();
 
     @Override
