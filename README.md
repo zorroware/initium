@@ -37,6 +37,11 @@
 ## Getting Started
 See [the wiki page](https://github.com/zorroware/initium/wiki/Getting-Started).
 
+## Donating
+I take anonymous cryptocurrency donations. If you want to support the development of Initium, consider donating. It means a lot to me.
+
+See [DONATING.md](DONATING.md) for instructions on donating. Thank you!
+
 ## Help Wanted
 If you have the technical knowledge to add these missing features, please feel free to open a pull request if you wish:
 
