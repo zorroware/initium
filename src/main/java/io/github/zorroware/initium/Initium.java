@@ -27,12 +27,12 @@ import io.github.zorroware.initium.config.Config;
 import io.github.zorroware.initium.listeners.CommandListener;
 import io.github.zorroware.initium.tasks.StatusTask;
 import io.github.zorroware.initium.util.NotificationUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,8 +47,8 @@ public class Initium {
     private static @Getter JDA jda;
 
     // Commands
-    private static final @Getter Map<String, AbstractCommand> commandMap = new HashMap<>();
-    private static final @Getter Map<String, String> aliasMap = new HashMap<>();
+    private static final @Getter Map<String, AbstractCommand> commandMap = new Object2ObjectOpenHashMap<>();
+    private static final @Getter Map<String, String> aliasMap = new Object2ObjectOpenHashMap<>();
 
     // Tasks
     private static final @Getter ScheduledExecutorService taskService = Executors.newSingleThreadScheduledExecutor();
