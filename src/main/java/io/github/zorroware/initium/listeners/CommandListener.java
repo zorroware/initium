@@ -95,34 +95,34 @@ public class CommandListener implements EventListener {
                     }
 
                     // Process permissions
-                    EnumSet<Permission> botPermissions = Objects.requireNonNull(queuedMessageReceivedEvent.getGuild().getMember(queuedMessageReceivedEvent.getJDA().getSelfUser())).getPermissions();
+                    EnumSet<Permission> botPermissions  = Objects.requireNonNull(queuedMessageReceivedEvent.getGuild().getMember(queuedMessageReceivedEvent.getJDA().getSelfUser())).getPermissions();
                     EnumSet<Permission> userPermissions = Objects.requireNonNull(queuedMessageReceivedEvent.getMember()).getPermissions();
 
-                    Permission[] commandPermissions = command.getPermissions();
+                    Permission[]     commandPermissions         = command.getPermissions();
                     List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
 
-                    boolean botHasRequiredPermissions = botPermissions.containsAll(commandPermissionsList);
+                    boolean botHasRequiredPermissions  = botPermissions.containsAll(commandPermissionsList);
                     boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
 
                     // Permissions check
                     if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
                         EmbedBuilder embedBuilder = EmbedUtil.errorMessage(queuedMessageReceivedEvent, "Missing Permissions",
-                                "The following permissions are required to run this command:");
+                                                                           "The following permissions are required to run this command:");
 
                         for (Permission permission : commandPermissions) {
-                            boolean botHasPermission = botPermissions.contains(permission);
+                            boolean botHasPermission  = botPermissions.contains(permission);
                             boolean userHasPermission = userPermissions.contains(permission);
 
                             // Use integers as an error code
                             int permissionMode = 0;
-                            if (!botHasPermission) permissionMode += 1;
+                            if (!botHasPermission)  permissionMode += 1;
                             if (!userHasPermission) permissionMode += 2;
 
                             // Match error code a description
                             String permissionIndicator = switch (permissionMode) {
-                                case 1 -> "Bot";
-                                case 2 -> "User";
-                                case 3 -> "Bot & User";
+                                case 1  -> "Bot";
+                                case 2  -> "User";
+                                case 3  -> "Bot & User";
                                 default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
                             };
 
@@ -136,7 +136,7 @@ public class CommandListener implements EventListener {
                     // NSFW check
                     if (command.isNSFW() && !queuedMessageReceivedEvent.getTextChannel().isNSFW()) {
                         EmbedBuilder embedBuilder = EmbedUtil.errorMessage(queuedMessageReceivedEvent, "NSFW Channel",
-                                "This command must be ran in an NSFW channel");
+                                                                           "This command must be ran in an NSFW channel");
 
                         // Image from Discord's guide on NSFW channels
                         embedBuilder.setImage("https://support.discord.com/hc/article_attachments/360007795191/2_.jpg");
