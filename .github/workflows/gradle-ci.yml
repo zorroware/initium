@@ -19,4 +19,4 @@ jobs:
       - name: Build with Gradle
         uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: build --no-daemon --stacktrace
+          arguments: shadowJar --no-daemon --stacktrace
