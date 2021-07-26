@@ -22,6 +22,7 @@ import io.github.zorroware.initium.Initium;
 import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.config.Config;
 import io.github.zorroware.initium.util.EmbedUtil;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -36,6 +37,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedTransferQueue;
 
 /**
  * A message listener that handles processing and executing commands.
@@ -47,10 +49,11 @@ public class CommandListener implements EventListener {
     // References
     private static final Config CONFIG = Initium.getConfig();
     private static final Map<String, AbstractCommand> COMMAND_MAP = Initium.getCommandMap();
-    private static final Map<String, String> ALIAS_MAP = Initium.getAliasMap();
+    private static final Map<String, String>          ALIAS_MAP   = Initium.getAliasMap();
 
-    // Command executor
+    // Queueing
     private static final @Getter ExecutorService threadPool = Executors.newCachedThreadPool();
+    private static final @Getter Map<Long, Queue<MessageReceivedEvent>> userQueueMap = new Long2ObjectOpenHashMap<>();
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
@@ -61,90 +64,109 @@ public class CommandListener implements EventListener {
         if (messageReceivedEvent.getChannelType().equals(ChannelType.PRIVATE)) return;
         if (messageReceivedEvent.getAuthor().isBot()) return;
 
-        // Submit to thread pool for command processing
-        threadPool.execute(() -> {
-            // Command parsing
-            String[] formatted = messageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ");
-            String name = formatted[0];
-            String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
+        // Initialize a queue
+        Queue<MessageReceivedEvent> queue =
+                userQueueMap.computeIfAbsent(messageReceivedEvent.getAuthor().getIdLong(), k -> new LinkedTransferQueue<>());
+        // Submit the first assignment to the queue
+        queue.offer(messageReceivedEvent);
 
-            // Matching to a command
-            AbstractCommand command;
-            if (COMMAND_MAP.containsKey(name)) {
-                command = COMMAND_MAP.get(name);
-            } else if (ALIAS_MAP.containsKey(name)) {
-                command = COMMAND_MAP.get(ALIAS_MAP.get(name));
-            } else {
-                return;
-            }
+        // Only start the queue loop if this is the first entry
+        if (queue.size() == 1) {
+            // Submit to thread pool for command processing
+            threadPool.execute(() -> {
+                do {
+                    // Use peek instead of poll/remove because the spot in the queue should only be freed when done processing
+                    MessageReceivedEvent queuedMessageReceivedEvent = queue.peek();
+                    assert queuedMessageReceivedEvent != null;
 
-            // Process permissions
-            EnumSet<Permission> botPermissions  = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
-            EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
+                    // Command parsing
+                    String[] formatted = queuedMessageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ");
+                    String name = formatted[0];
+                    String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
 
-            Permission[] commandPermissions = command.getPermissions();
-            List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
+                    // Matching to a command
+                    AbstractCommand command;
+                    if (COMMAND_MAP.containsKey(name)) {
+                        command = COMMAND_MAP.get(name);
+                    } else if (ALIAS_MAP.containsKey(name)) {
+                        command = COMMAND_MAP.get(ALIAS_MAP.get(name));
+                    } else {
+                        return;
+                    }
 
-            boolean botHasRequiredPermissions = botPermissions.containsAll(commandPermissionsList);
-            boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
+                    // Process permissions
+                    EnumSet<Permission> botPermissions = Objects.requireNonNull(queuedMessageReceivedEvent.getGuild().getMember(queuedMessageReceivedEvent.getJDA().getSelfUser())).getPermissions();
+                    EnumSet<Permission> userPermissions = Objects.requireNonNull(queuedMessageReceivedEvent.getMember()).getPermissions();
 
-            // Permissions check
-            if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
-                EmbedBuilder embedBuilder = EmbedUtil.errorMessage(messageReceivedEvent, "Missing Permissions",
-                                                                   "The following permissions are required to run this command:");
+                    Permission[] commandPermissions = command.getPermissions();
+                    List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
 
-                for (Permission permission : commandPermissions) {
-                    boolean botHasPermission  = botPermissions.contains(permission);
-                    boolean userHasPermission = userPermissions.contains(permission);
+                    boolean botHasRequiredPermissions = botPermissions.containsAll(commandPermissionsList);
+                    boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
 
-                    // Use integers as an error code
-                    int permissionMode = 0;
-                    if (!botHasPermission)  permissionMode += 1;
-                    if (!userHasPermission) permissionMode += 2;
+                    // Permissions check
+                    if (!botHasRequiredPermissions || !userHasRequiredPermissions) {
+                        EmbedBuilder embedBuilder = EmbedUtil.errorMessage(queuedMessageReceivedEvent, "Missing Permissions",
+                                "The following permissions are required to run this command:");
 
-                    // Match error code a description
-                    String permissionIndicator = switch (permissionMode) {
-                        case 1  -> "Bot";
-                        case 2  -> "User";
-                        case 3  -> "Bot & User";
-                        default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
-                    };
+                        for (Permission permission : commandPermissions) {
+                            boolean botHasPermission = botPermissions.contains(permission);
+                            boolean userHasPermission = userPermissions.contains(permission);
 
-                    embedBuilder.addField(permission.getName(), "Who: " + permissionIndicator, true);
-                }
+                            // Use integers as an error code
+                            int permissionMode = 0;
+                            if (!botHasPermission) permissionMode += 1;
+                            if (!userHasPermission) permissionMode += 2;
 
-                messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-                return;
-            }
+                            // Match error code a description
+                            String permissionIndicator = switch (permissionMode) {
+                                case 1 -> "Bot";
+                                case 2 -> "User";
+                                case 3 -> "Bot & User";
+                                default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
+                            };
 
-            // NSFW check
-            if (command.isNSFW() && !messageReceivedEvent.getTextChannel().isNSFW()) {
-                EmbedBuilder embedBuilder = EmbedUtil.errorMessage(messageReceivedEvent, "NSFW Channel",
-                                                                   "This command must be ran in an NSFW channel");
+                            embedBuilder.addField(permission.getName(), "Who: " + permissionIndicator, true);
+                        }
 
-                // Image from Discord's guide on NSFW channels
-                embedBuilder.setImage("https://support.discord.com/hc/article_attachments/360007795191/2_.jpg");
+                        queuedMessageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                        return;
+                    }
 
-                messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-                return;
-            }
+                    // NSFW check
+                    if (command.isNSFW() && !queuedMessageReceivedEvent.getTextChannel().isNSFW()) {
+                        EmbedBuilder embedBuilder = EmbedUtil.errorMessage(queuedMessageReceivedEvent, "NSFW Channel",
+                                "This command must be ran in an NSFW channel");
 
-            String tag = messageReceivedEvent.getAuthor().getAsTag();
-            String flatArgs = Arrays.toString(args);
+                        // Image from Discord's guide on NSFW channels
+                        embedBuilder.setImage("https://support.discord.com/hc/article_attachments/360007795191/2_.jpg");
 
-            // Command execution
-            try {
-                command.execute(messageReceivedEvent, args);
-            } catch (Exception e) {
-                LOGGER.error("{} failed {} with arguments {} and exception {}", tag, name, flatArgs, e);
+                        queuedMessageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                        return;
+                    }
 
-                // Dispatch error message
-                EmbedBuilder errorMessage = EmbedUtil.errorMessage(messageReceivedEvent, "Command Execution", e.getMessage());
-                messageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
-                return;
-            }
+                    String tag = queuedMessageReceivedEvent.getAuthor().getAsTag();
+                    String flatArgs = Arrays.toString(args);
 
-            LOGGER.info("{} executed {} with arguments {}", tag, name, flatArgs);
-        });
+                    // Command execution
+                    try {
+                        command.execute(queuedMessageReceivedEvent, args);
+                    } catch (Exception e) {
+                        LOGGER.error("{} failed {} with arguments {} and exception {}", tag, name, flatArgs, e);
+
+                        // Dispatch error message
+                        EmbedBuilder errorMessage = EmbedUtil.errorMessage(queuedMessageReceivedEvent, "Command Execution", e.getMessage());
+                        queuedMessageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
+                        return;
+                    }
+
+                    LOGGER.info("{} executed {} with arguments {}", tag, name, flatArgs);
+
+                    queue.remove();
+                } while (queue.size() > 0);
+
+                userQueueMap.remove(messageReceivedEvent.getAuthor().getIdLong());
+            });
+        }
     }
 }
