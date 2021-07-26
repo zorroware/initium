@@ -50,7 +50,7 @@ public class NotificationUtil {
         String currentVersion = JDAInfo.VERSION;
 
         int availableBuild = Integer.parseInt(availableVersion.split("_")[1]);
-        int currentBuild = Integer.parseInt(JDAInfo.VERSION_BUILD);
+        int currentBuild   = Integer.parseInt(JDAInfo.VERSION_BUILD);
 
         if (availableBuild > currentBuild) {
             String message = String.format("Current: %s, Latest: %s", currentVersion, availableVersion);

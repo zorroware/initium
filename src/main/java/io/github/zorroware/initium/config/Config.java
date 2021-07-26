@@ -44,7 +44,7 @@ public class Config {
 
         Config config = new Config();
         config.setPrefix(tomlParseResult.getString("prefix"));
-        config.setToken(tomlParseResult.getString("token"));
+        config.setToken (tomlParseResult.getString("token"));
         return config;
     }
 }

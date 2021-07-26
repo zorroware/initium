@@ -55,10 +55,10 @@ public class AvatarCommand extends AbstractCommand {
         String cleanedUrl = FilenameUtils.removeExtension(target.getEffectiveAvatarUrl());  // Prune the file extension
 
         List<String> formats = new ArrayList<>();
-        formats.add(String.format("[[png]](%s)", cleanedUrl + ".png" + SUFFIX));  // PNG
-        formats.add(String.format("[[jpg]](%s)", cleanedUrl + ".jpg" + SUFFIX));  // JPG
-        if (url.endsWith(".gif")) formats.add(String.format("[[gif]](%s)", cleanedUrl + ".gif" + SUFFIX));  // GIF (if avatar is animated)
+        formats.add(String.format("[[jpg]](%s)",  cleanedUrl + ".jpg" +  SUFFIX));  // JPG
+        formats.add(String.format("[[png]](%s)",  cleanedUrl + ".png" +  SUFFIX));  // PNG
         formats.add(String.format("[[webp]](%s)", cleanedUrl + ".webp" + SUFFIX));  // WEBP
+        if (url.endsWith(".gif")) formats.add(String.format("[[gif]](%s)", cleanedUrl + ".gif" + SUFFIX));  // GIF (if avatar is animated)
 
         embedBuilder.setDescription(String.join(" ", formats));  // Assemble links into one string
 

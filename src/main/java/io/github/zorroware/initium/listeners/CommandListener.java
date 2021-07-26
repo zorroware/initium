@@ -79,8 +79,9 @@ public class CommandListener implements EventListener {
             }
 
             // Process permissions
-            EnumSet<Permission> botPermissions = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
+            EnumSet<Permission> botPermissions  = Objects.requireNonNull(messageReceivedEvent.getGuild().getMember(messageReceivedEvent.getJDA().getSelfUser())).getPermissions();
             EnumSet<Permission> userPermissions = Objects.requireNonNull(messageReceivedEvent.getMember()).getPermissions();
+
             Permission[] commandPermissions = command.getPermissions();
             List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
 
@@ -93,12 +94,12 @@ public class CommandListener implements EventListener {
                                                                    "The following permissions are required to run this command:");
 
                 for (Permission permission : commandPermissions) {
-                    boolean botHasPermission = botPermissions.contains(permission);
+                    boolean botHasPermission  = botPermissions.contains(permission);
                     boolean userHasPermission = userPermissions.contains(permission);
 
                     // Use integers as an error code
                     int permissionMode = 0;
-                    if (!botHasPermission) permissionMode += 1;
+                    if (!botHasPermission)  permissionMode += 1;
                     if (!userHasPermission) permissionMode += 2;
 
                     // Match error code a description
