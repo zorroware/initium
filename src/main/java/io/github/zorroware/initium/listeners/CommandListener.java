@@ -81,8 +81,8 @@ public class CommandListener implements EventListener {
 
                     // Command parsing
                     String[] formatted = queuedMessageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ");
-                    String name = formatted[0];
-                    String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
+                    String   name      = formatted[0];
+                    String[] args      = Arrays.copyOfRange(formatted, 1, formatted.length);
 
                     // Matching to a command
                     AbstractCommand command;
@@ -98,7 +98,7 @@ public class CommandListener implements EventListener {
                     EnumSet<Permission> botPermissions  = Objects.requireNonNull(queuedMessageReceivedEvent.getGuild().getMember(queuedMessageReceivedEvent.getJDA().getSelfUser())).getPermissions();
                     EnumSet<Permission> userPermissions = Objects.requireNonNull(queuedMessageReceivedEvent.getMember()).getPermissions();
 
-                    Permission[]     commandPermissions         = command.getPermissions();
+                    Permission[]     commandPermissions     = command.getPermissions();
                     List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
 
                     boolean botHasRequiredPermissions  = botPermissions.containsAll(commandPermissionsList);
@@ -146,21 +146,24 @@ public class CommandListener implements EventListener {
                     }
 
                     String tag = queuedMessageReceivedEvent.getAuthor().getAsTag();
-                    String flatArgs = Arrays.toString(args);
+                    String flatArgs = String.join(", ", args);
 
-                    // Command execution
+                    Exception exception = null;
                     try {
+                        // Command execution
                         command.execute(queuedMessageReceivedEvent, args);
                     } catch (Exception e) {
-                        LOGGER.error("{} failed {} with arguments {} and exception {}", tag, name, flatArgs, e);
+                        exception = e;
+                    } finally {
+                        if (exception == null) {
+                            LOGGER.info("{} executed \"{}\" with arguments \"{}\"", tag, name, flatArgs);
+                        } else {
+                            LOGGER.error("{} failed \"{}\" with arguments \"{}\" and exception \"{}\"", tag, name, flatArgs, exception);
 
-                        // Dispatch error message
-                        EmbedBuilder errorMessage = EmbedUtil.errorMessage(queuedMessageReceivedEvent, "Command Execution", e.getMessage());
-                        queuedMessageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
-                        return;
+                            EmbedBuilder errorMessage = EmbedUtil.errorMessage(queuedMessageReceivedEvent, "Command Execution", exception.getMessage());
+                            queuedMessageReceivedEvent.getChannel().sendMessageEmbeds(errorMessage.build()).queue();
+                        }
                     }
-
-                    LOGGER.info("{} executed {} with arguments {}", tag, name, flatArgs);
 
                     queue.remove();
                 } while (queue.size() > 0);
