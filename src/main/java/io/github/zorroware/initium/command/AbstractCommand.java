@@ -28,6 +28,8 @@ public abstract class AbstractCommand {
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
     }
 
+    public abstract String getName();
+
     public String getDescription() {
         return null;
     }

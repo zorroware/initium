@@ -44,6 +44,7 @@ dependencies {
     implementation(group = "com.google.guava",         name = "guava",              version = "30.1.1-jre")
     implementation(group = "commons-io",               name = "commons-io",         version = "2.10.0")
     implementation(group = "it.unimi.dsi",             name = "fastutil",           version = "8.5.4")
+    implementation(group = "org.reflections",          name = "reflections",        version = "0.9.12")
     implementation(group = "org.tomlj",                name = "tomlj",              version = "1.0.0")
 
     // Backend Libraries

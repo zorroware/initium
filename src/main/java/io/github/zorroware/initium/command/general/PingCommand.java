@@ -60,6 +60,11 @@ public class PingCommand extends AbstractCommand {
     }
 
     @Override
+    public String getName() {
+        return "ping";
+    }
+
+    @Override
     public String getDescription() {
         return "Measures and displays API latency, client latency, and processing time.";
     }

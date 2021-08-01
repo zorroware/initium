@@ -69,6 +69,11 @@ public class AvatarCommand extends AbstractCommand {
     }
 
     @Override
+    public String getName() {
+        return "avatar";
+    }
+
+    @Override
     public String getDescription() {
         return "Displays the avatar of a user, or yourself if no user is mentioned.";
     }
