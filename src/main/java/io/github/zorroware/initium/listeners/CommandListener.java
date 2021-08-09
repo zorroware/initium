@@ -49,7 +49,7 @@ public class CommandListener implements EventListener {
     // References
     private static final Config CONFIG = Initium.getConfig();
     private static final Map<String, AbstractCommand> COMMAND_MAP = Initium.getCommandMap();
-    private static final Map<String, String>          ALIAS_MAP   = Initium.getAliasMap();
+    private static final Map<String, String> ALIAS_MAP = Initium.getAliasMap();
 
     // Queueing
     private static final @Getter ExecutorService threadPool = Executors.newCachedThreadPool();
@@ -81,8 +81,8 @@ public class CommandListener implements EventListener {
 
                     // Command parsing
                     String[] formatted = queuedMessageReceivedEvent.getMessage().getContentRaw().substring(CONFIG.getPrefix().length()).split(" ");
-                    String   name      = formatted[0];
-                    String[] args      = Arrays.copyOfRange(formatted, 1, formatted.length);
+                    String name = formatted[0];
+                    String[] args = Arrays.copyOfRange(formatted, 1, formatted.length);
 
                     // Matching to a command
                     AbstractCommand command;
@@ -95,13 +95,13 @@ public class CommandListener implements EventListener {
                     }
 
                     // Process permissions
-                    EnumSet<Permission> botPermissions  = Objects.requireNonNull(queuedMessageReceivedEvent.getGuild().getMember(queuedMessageReceivedEvent.getJDA().getSelfUser())).getPermissions();
+                    EnumSet<Permission> botPermissions = Objects.requireNonNull(queuedMessageReceivedEvent.getGuild().getMember(queuedMessageReceivedEvent.getJDA().getSelfUser())).getPermissions();
                     EnumSet<Permission> userPermissions = Objects.requireNonNull(queuedMessageReceivedEvent.getMember()).getPermissions();
 
-                    Permission[]     commandPermissions     = command.getPermissions();
+                    Permission[] commandPermissions = command.getPermissions();
                     List<Permission> commandPermissionsList = Arrays.asList(commandPermissions);
 
-                    boolean botHasRequiredPermissions  = botPermissions.containsAll(commandPermissionsList);
+                    boolean botHasRequiredPermissions = botPermissions.containsAll(commandPermissionsList);
                     boolean userHasRequiredPermissions = userPermissions.containsAll(commandPermissionsList);
 
                     // Permissions check
@@ -110,12 +110,12 @@ public class CommandListener implements EventListener {
                                                                            "The following permissions are required to run this command:");
 
                         for (Permission permission : commandPermissions) {
-                            boolean botHasPermission  = botPermissions.contains(permission);
+                            boolean botHasPermission = botPermissions.contains(permission);
                             boolean userHasPermission = userPermissions.contains(permission);
 
                             // Use integers as an error code
                             int permissionMode = 0;
-                            if (!botHasPermission)  permissionMode += 1;
+                            if (!botHasPermission) permissionMode += 1;
                             if (!userHasPermission) permissionMode += 2;
 
                             // Match error code a description

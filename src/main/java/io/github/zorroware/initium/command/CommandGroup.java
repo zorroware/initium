@@ -22,9 +22,9 @@ package io.github.zorroware.initium.command;
  * An enum containing categories for commands.
  */
 public enum CommandGroup {
-    GENERAL   ("General"),
-    HELP      ("Help"),
-    MODERATION("Moderation");
+    GENERAL    ("General"),
+    HELP       ("Help"),
+    MODERATION ("Moderation");
 
     private final String commandGroup;
 

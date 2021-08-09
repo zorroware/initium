@@ -48,7 +48,7 @@ public class Initium {
 
     // Commands
     private static final @Getter Map<String, AbstractCommand> commandMap = new Object2ObjectOpenHashMap<>();
-    private static final @Getter Map<String, String>          aliasMap   = new Object2ObjectOpenHashMap<>();
+    private static final @Getter Map<String, String> aliasMap = new Object2ObjectOpenHashMap<>();
 
     // Tasks
     private static final @Getter ScheduledExecutorService taskService = Executors.newSingleThreadScheduledExecutor();
