@@ -27,8 +27,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public abstract class AbstractCommand {
     public abstract void execute(MessageReceivedEvent messageReceivedEvent, String[] args);
 
-    public abstract String getName();
-
     public String getDescription() {
         return null;
     }

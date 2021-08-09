@@ -19,6 +19,10 @@
 package io.github.zorroware.initium;
 
 import io.github.zorroware.initium.command.AbstractCommand;
+import io.github.zorroware.initium.command.general.AvatarCommand;
+import io.github.zorroware.initium.command.general.PingCommand;
+import io.github.zorroware.initium.command.help.HelpCommand;
+import io.github.zorroware.initium.command.moderation.KickCommand;
 import io.github.zorroware.initium.config.Config;
 import io.github.zorroware.initium.listeners.CommandListener;
 import io.github.zorroware.initium.tasks.StatusTask;
@@ -28,9 +32,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import org.reflections.Reflections;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -68,16 +70,15 @@ public class Initium {
      * Loads commands into the command map and loads aliases into the alias map
      */
     private static void registerCommands() {
-        /* The verbose error handling here is a result of Java's safety measures.
-         * This theoretically should never error. */
-        new Reflections("io.github.zorroware.initium.command").getSubTypesOf(AbstractCommand.class).stream().toList().forEach(commandClass -> {
-            try {
-                AbstractCommand command = commandClass.getDeclaredConstructor().newInstance();
-                commandMap.put(command.getName(), command);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        });
+        // General
+        commandMap.put("avatar", new AvatarCommand());
+        commandMap.put("ping",   new PingCommand());
+
+        // Help
+        commandMap.put("help",   new HelpCommand());
+
+        // Moderation
+        commandMap.put("kick",   new KickCommand());
 
         // Aliases
         for (String command : commandMap.keySet()) {

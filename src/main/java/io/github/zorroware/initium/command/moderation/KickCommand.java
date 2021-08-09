@@ -46,11 +46,6 @@ public class KickCommand extends AbstractCommand {
     }
 
     @Override
-    public String getName() {
-        return "kick";
-    }
-
-    @Override
     public String getDescription() {
         return "Kick a user from the guild.";
     }

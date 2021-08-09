@@ -109,11 +109,6 @@ public class HelpCommand extends AbstractCommand {
     }
 
     @Override
-    public String getName() {
-        return "help";
-    }
-
-    @Override
     public String getDescription() {
         return "Display information on commands.";
     }
