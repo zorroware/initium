@@ -21,14 +21,12 @@ package io.github.zorroware.initium.command.general;
 import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.apache.commons.io.FilenameUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class AvatarCommand extends AbstractCommand {
     // Image URL suffix
