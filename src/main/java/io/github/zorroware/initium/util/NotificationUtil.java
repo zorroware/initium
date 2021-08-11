@@ -41,7 +41,7 @@ public class NotificationUtil {
     @SneakyThrows
     public static void handleUpdateNotification() {
         // Parse current release build from Maven metadata
-        String availableVersion = new Scanner(new URL("https://m2.dv8tion.net/releases/net/dv8tion/JDA/maven-metadata.xml").openStream(), StandardCharsets.UTF_8)
+        String availableVersion = new Scanner(new URL("https://m2.dv8tion.net/releases/net/dv8tion/JDA/maven-metadata.xml").openStream())
                 .useDelimiter("\\A")
                 .next()
                 .split("<release>")[1]

@@ -57,7 +57,8 @@ public class CommandListener implements EventListener {
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
-        if (!(event instanceof MessageReceivedEvent messageReceivedEvent)) return;
+        if (!(event instanceof MessageReceivedEvent)) return;
+        MessageReceivedEvent messageReceivedEvent = (MessageReceivedEvent) event;
 
         // These checks go first because they're most likely to fail
         if (!messageReceivedEvent.getMessage().getContentRaw().startsWith(CONFIG.getPrefix())) return;
@@ -119,12 +120,20 @@ public class CommandListener implements EventListener {
                             if (!userHasPermission) permissionMode += 2;
 
                             // Match error code a description
-                            String permissionIndicator = switch (permissionMode) {
-                                case 1  -> "Bot";
-                                case 2  -> "User";
-                                case 3  -> "Bot & User";
-                                default -> throw new IllegalStateException("Unexpected value: " + permissionMode);
-                            };
+                            String permissionIndicator;
+                            switch (permissionMode) {
+                                case 1:
+                                    permissionIndicator = "Bot";
+                                    break;
+                                case 2:
+                                    permissionIndicator = "User";
+                                    break;
+                                case 3:
+                                    permissionIndicator = "Bot & User";
+                                    break;
+                                default:
+                                    throw new IllegalStateException("Unexpected value: " + permissionMode);
+                            }
 
                             embedBuilder.addField(permission.getName(), "Who: " + permissionIndicator, true);
                         }

@@ -2,7 +2,7 @@
 <div align="center">
   <h1>Initium</h1>
 
-  High-performance Discord bot template written in Java 16
+  High-performance Discord bot template written in Java 8
 
   <p>
     <img src="https://img.shields.io/github/workflow/status/zorroware/initium/Gradle%20CI?style=for-the-badge" />
