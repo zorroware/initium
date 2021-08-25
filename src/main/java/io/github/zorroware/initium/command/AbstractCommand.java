@@ -18,6 +18,7 @@
 
 package io.github.zorroware.initium.command;
 
+import lombok.Getter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -27,31 +28,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public abstract class AbstractCommand {
     public abstract void execute(MessageReceivedEvent messageReceivedEvent, String[] args);
 
-    public String getDescription() {
-        return null;
-    }
-
-    public String getUsage() {
-        return null;
-    }
-
-    public String[] getAliases() {
-        return new String[0];
-    }
-
-    public CommandGroup getCommandGroup() {
-        return CommandGroup.GENERAL;
-    }
-
-    public boolean isHidden() {
-        return false;
-    }
-
-    public boolean isNSFW() {
-        return false;
-    }
-
-    public Permission[] getPermissions() {
-        return Permission.EMPTY_PERMISSIONS;
-    }
+    public final @Getter String description = null;
+    public final @Getter String usage = null;
+    public final @Getter String[] aliases = new String[0];
+    public final @Getter CommandGroup commandGroup = CommandGroup.GENERAL;
+    public final @Getter boolean isHidden = false;
+    public final @Getter boolean isNSFW = false;
+    public final @Getter Permission[] permissions = Permission.EMPTY_PERMISSIONS;
 }

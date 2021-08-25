@@ -20,10 +20,15 @@ package io.github.zorroware.initium.command.general;
 
 import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.util.EmbedUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class PingCommand extends AbstractCommand {
+    // Attributes
+    public final @Getter String description = "Measures and displays API latency, client latency, and processing time.";
+    public final @Getter String[] aliases = new String[] { "lag", "latency" };
+
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         // Begin latency measurement
@@ -57,15 +62,5 @@ public class PingCommand extends AbstractCommand {
             // Update the message with results
             message.editMessageEmbeds(pingEmbed.build()).queue();
         });
-    }
-
-    @Override
-    public String getDescription() {
-        return "Measures and displays API latency, client latency, and processing time.";
-    }
-
-    @Override
-    public String[] getAliases() {
-        return new String[] { "lag", "latency" };
     }
 }

@@ -23,6 +23,7 @@ import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.command.CommandGroup;
 import io.github.zorroware.initium.config.Config;
 import io.github.zorroware.initium.util.EmbedUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -30,6 +31,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.*;
 
 public class HelpCommand extends AbstractCommand {
+    // Attributes
+    public final @Getter String description = "Display information on commands.";
+    public final @Getter String usage = "[<command>]";
+    public final @Getter String[] aliases = new String[] { "h" };
+    public final @Getter CommandGroup commandGroup = CommandGroup.HELP;
+
     // References
     private static final Config CONFIG = Initium.getConfig();
     private static final Map<String, AbstractCommand> COMMAND_MAP = Initium.getCommandMap();
@@ -106,25 +113,5 @@ public class HelpCommand extends AbstractCommand {
         }
 
         messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-    }
-
-    @Override
-    public String getDescription() {
-        return "Display information on commands.";
-    }
-
-    @Override
-    public String getUsage() {
-        return "[<command>]";
-    }
-
-    @Override
-    public String[] getAliases() {
-        return new String[] { "h" };
-    }
-
-    @Override
-    public CommandGroup getCommandGroup() {
-        return CommandGroup.HELP;
     }
 }

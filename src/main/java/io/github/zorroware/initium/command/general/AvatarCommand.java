@@ -20,6 +20,7 @@ package io.github.zorroware.initium.command.general;
 
 import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.util.EmbedUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -29,6 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AvatarCommand extends AbstractCommand {
+    // Attributes
+    public final @Getter String description = "Displays the avatar of a user, or yourself if no user is mentioned.";
+    public final @Getter String usage = "[<user>]";
+    public final @Getter String[] aliases = new String[] { "av", "pfp" };
+
     // Image URL suffix
     private static final String SUFFIX = "?size=1024";
 
@@ -63,20 +69,5 @@ public class AvatarCommand extends AbstractCommand {
         embedBuilder.setColor(0x6600bb);
 
         messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-    }
-
-    @Override
-    public String getDescription() {
-        return "Displays the avatar of a user, or yourself if no user is mentioned.";
-    }
-
-    @Override
-    public String getUsage() {
-        return "[<user>]";
-    }
-
-    @Override
-    public String[] getAliases() {
-        return new String[] { "av", "pfp" };
     }
 }

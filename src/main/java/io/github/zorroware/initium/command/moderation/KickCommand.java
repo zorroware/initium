@@ -21,12 +21,19 @@ package io.github.zorroware.initium.command.moderation;
 import io.github.zorroware.initium.command.AbstractCommand;
 import io.github.zorroware.initium.command.CommandGroup;
 import io.github.zorroware.initium.util.EmbedUtil;
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class KickCommand extends AbstractCommand {
+    // Attributes
+    public final @Getter String description = "Kick a user from the guild.";
+    public final @Getter String usage = "<user> [<reason>]";
+    public final @Getter CommandGroup commandGroup = CommandGroup.MODERATION;
+    public final @Getter Permission[] permissions = new Permission[] { Permission.KICK_MEMBERS };
+
     @Override
     public void execute(MessageReceivedEvent messageReceivedEvent, String[] args) {
         if (messageReceivedEvent.getMessage().getMentionedUsers().isEmpty()) throw new IllegalArgumentException("No user mentioned");
@@ -43,25 +50,5 @@ public class KickCommand extends AbstractCommand {
         embedBuilder.setColor(0x00ee99);
 
         messageReceivedEvent.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-    }
-
-    @Override
-    public String getDescription() {
-        return "Kick a user from the guild.";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<user> [<reason>]";
-    }
-
-    @Override
-    public CommandGroup getCommandGroup() {
-        return CommandGroup.MODERATION;
-    }
-
-    @Override
-    public Permission[] getPermissions() {
-        return new Permission[] { Permission.KICK_MEMBERS };
     }
 }
