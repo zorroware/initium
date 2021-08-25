@@ -50,7 +50,7 @@ dependencies {
     implementation(group = "org.apache.logging.log4j", name = "log4j-api",          version = "2.14.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-core",         version = "2.14.1")
     implementation(group = "org.apache.logging.log4j", name = "log4j-slf4j18-impl", version = "2.14.1")
-    implementation(group = "org.slf4j",                name = "slf4j-api",          version = "2.0.0-alpha3")
+    implementation(group = "org.slf4j",                name = "slf4j-api",          version = "2.0.0-alpha2")
 }
 
 application {
