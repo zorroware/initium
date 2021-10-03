@@ -1,3 +1,6 @@
+# Notice of Discontinuation
+The Initium project has been discontinued.
+
 <!-- Sorry for this HTML bit, but once you use a div, you gotta commit to the div. -->
 <div align="center">
   <h1>Initium</h1>
